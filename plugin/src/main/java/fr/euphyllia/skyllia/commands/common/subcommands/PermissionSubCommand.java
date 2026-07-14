@@ -29,8 +29,10 @@ public class PermissionSubCommand implements SubCommandInterface {
 
     private final Logger logger = LogManager.getLogger(PermissionSubCommand.class);
     private final PermissionId PERMISSION_COMMAND_PERMISSION;
+    private final fr.euphyllia.skyllia.gui.PermissionGui permissionGui;
 
-    public PermissionSubCommand() {
+    public PermissionSubCommand(fr.euphyllia.skyllia.gui.PermissionGui permissionGui) {
+        this.permissionGui = permissionGui;
         this.PERMISSION_COMMAND_PERMISSION = SkylliaAPI.getPermissionRegistry().register(new PermissionNode(
                 new NamespacedKey(SkylliaAPI.getPlugin(), "command.island.permission"),
                 "island.permission.command.permission.name",
@@ -99,7 +101,7 @@ public class PermissionSubCommand implements SubCommandInterface {
 
         if (args.length == 0 || args[0].equalsIgnoreCase("gui")) {
             Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
-                    fr.euphyllia.skyllia.gui.PermissionGui.open(player, island));
+                    permissionGui.open(player, island));
             return;
         }
 

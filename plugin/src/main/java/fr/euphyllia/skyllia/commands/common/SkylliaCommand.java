@@ -32,6 +32,9 @@ public class SkylliaCommand implements SkylliaCommandInterface {
     }
 
     private void registerDefaultCommands() {
+        fr.euphyllia.skyllia.gui.PermissionGui permissionGui = new fr.euphyllia.skyllia.gui.PermissionGui(plugin);
+        this.plugin.setPermissionGui(permissionGui);
+
         registry.registerSubCommand(new BanListCommand(), "banlist", "banned");
         registry.registerSubCommand(new BanSubCommand(), "ban");
         registry.registerSubCommand(new CreateSubCommand(), "create");
@@ -43,7 +46,7 @@ public class SkylliaCommand implements SkylliaCommandInterface {
         registry.registerSubCommand(new InviteSubCommand(), "invite", "add");
         registry.registerSubCommand(new KickSubCommand(), "kick");
         registry.registerSubCommand(new LeaveSubCommand(), "leave");
-        registry.registerSubCommand(new PermissionSubCommand(), "permission");
+        registry.registerSubCommand(new PermissionSubCommand(permissionGui), "permission");
         registry.registerSubCommand(new FlagSubCommand(), "flag", "gamerule");
         registry.registerSubCommand(new PromoteSubCommand(), "promote");
         registry.registerSubCommand(new TransferSubCommand(), "transfer");

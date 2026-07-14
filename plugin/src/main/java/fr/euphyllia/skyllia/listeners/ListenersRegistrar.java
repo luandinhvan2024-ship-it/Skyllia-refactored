@@ -86,7 +86,7 @@ public class ListenersRegistrar {
         registerEvent(pluginManager, new IslandInfoExtraListener());
 
         // GUI Listeners
-        registerEvent(pluginManager, new PermissionGuiListener());
+        registerEvent(pluginManager, new PermissionGuiListener(plugin.getPermissionGui()));
 
         // Permissions Listeners
         var moduleManager = SkylliaAPI.getPermissionModuleManager();

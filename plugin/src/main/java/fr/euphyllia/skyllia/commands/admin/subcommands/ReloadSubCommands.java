@@ -1,4 +1,5 @@
 package fr.euphyllia.skyllia.commands.admin.subcommands;
+import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
 import fr.euphyllia.skyllia.api.event.skyllia.SkylliaReloadEvent;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
@@ -18,6 +19,10 @@ public class ReloadSubCommands implements SubCommandInterface {
         ConfigLoader.reloadConfigs();
         ConfigLoader.permissionsV2.compileNow();
         ConfigLoader.islandFlags.compileNow();
+        Skyllia skyllia = Skyllia.getInstance();
+        if (skyllia.getPermissionGui() != null) {
+            skyllia.getPermissionGui().loadConfig();
+        }
         ConfigLoader.language.sendMessage(sender, "island.admin.reload");
     }
     @Override

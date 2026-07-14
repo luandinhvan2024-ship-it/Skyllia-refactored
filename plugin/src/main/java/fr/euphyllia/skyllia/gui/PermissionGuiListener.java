@@ -20,6 +20,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PermissionGuiListener implements Listener {
 
+    private final PermissionGui permissionGui;
+
+    public PermissionGuiListener(PermissionGui permissionGui) {
+        this.permissionGui = permissionGui;
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
         Inventory topInventory = event.getInventory();
@@ -35,7 +41,8 @@ public final class PermissionGuiListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType().isAir()) return;
 
-        PermissionGui.handleClick(player, holder, clickedItem);
+        boolean leftClick = event.getClick().isLeftClick();
+        permissionGui.handleClick(player, holder, clickedItem, leftClick);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

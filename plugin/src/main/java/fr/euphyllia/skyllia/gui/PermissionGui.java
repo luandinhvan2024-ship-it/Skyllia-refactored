@@ -1,7 +1,7 @@
 package fr.euphyllia.skyllia.gui;
 
+import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
-import fr.euphyllia.skyllia.api.permissions.CompiledPermissions;
 import fr.euphyllia.skyllia.api.permissions.PermissionId;
 import fr.euphyllia.skyllia.api.permissions.PermissionNode;
 import fr.euphyllia.skyllia.api.permissions.PermissionRegistry;
@@ -11,7 +11,11 @@ import fr.euphyllia.skyllia.permissions.PermissionService;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -21,201 +25,192 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
- * Pure view layer for the Permission system.
- * Contains NO permission logic. All operations delegate to PermissionService.
+ * Permission GUI view layer - modeled after SuperiorSkyblock2's MenuIslandPrivileges.
  *
  * Architecture:
  *   GUI (this) → PermissionService → IslandPermissionQuery + CompiledPermissions → Database
  *
- * The GUI only:
+ * This class ONLY:
  *   - Displays data (reads via PermissionService.hasPermission)
- *   - Receives clicks (calls PermissionService.setPermission/togglePermission)
+ *   - Receives clicks (calls PermissionService.setPermission)
+ *   - Reads all display info (name, icon, lore) from permissions-gui.yml
+ *
+ * Contains ZERO permission logic. Contains ZERO database access.
  */
 public final class PermissionGui {
 
     private static final MiniMessage MM = MiniMessage.miniMessage();
     private static final NamespacedKey ACTION_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_action");
-    private static final NamespacedKey ROLE_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_role");
     private static final NamespacedKey PERM_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_perm");
+    private static final NamespacedKey ROLE_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_role");
+    private static final NamespacedKey CAT_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_cat");
     private static final NamespacedKey PAGE_KEY = new NamespacedKey(SkylliaAPI.getPlugin(), "pgui_page");
 
     private static final int PAGE_SIZE = 36;
 
-    public static void open(@NotNull Player player, @NotNull Island island) {
+    private final Skyllia plugin;
+    private FileConfiguration config;
+
+    public PermissionGui(Skyllia plugin) {
+        this.plugin = plugin;
+        loadConfig();
+    }
+
+    public void loadConfig() {
+        File file = new File(plugin.getDataFolder(), "config/permissions-gui.yml");
+        if (!file.exists()) {
+            plugin.saveResource("config/permissions-gui.yml", false);
+        }
+        config = YamlConfiguration.loadConfiguration(file);
+        InputStream defaults = plugin.getResource("config/permissions-gui.yml");
+        if (defaults != null) {
+            config.setDefaults(YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(defaults, StandardCharsets.UTF_8)));
+        }
+    }
+
+    public void open(@NotNull Player player, @NotNull Island island) {
         openRoleSelect(player, island);
     }
 
-    public static void openRoleSelect(@NotNull Player player, @NotNull Island island) {
-        Inventory inv = Bukkit.createInventory(
-                new PermissionGuiHolder(island, null, 0),
-                27,
-                MM.deserialize("<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Select Role</bold></gradient>")
-        );
+    public void openRoleSelect(@NotNull Player player, @NotNull Island island) {
+        String title = config.getString("titles.role-select", "<white>Select Role");
+        Inventory inv = Bukkit.createInventory(new PermissionGuiHolder(island, null, 0), 27, MM.deserialize(title));
 
-        RoleType[] roles = {RoleType.OWNER, RoleType.CO_OWNER, RoleType.MODERATOR, RoleType.MEMBER, RoleType.VISITOR, RoleType.BAN};
-        int[] slots = {11, 13, 15, 20, 22, 24};
-        org.bukkit.Material[] mats = {
-                org.bukkit.Material.GOLDEN_HELMET,
-                org.bukkit.Material.DIAMOND_HELMET,
-                org.bukkit.Material.IRON_HELMET,
-                org.bukkit.Material.CHAINMAIL_HELMET,
-                org.bukkit.Material.LEATHER_HELMET,
-                org.bukkit.Material.BARRIER
-        };
-        String[] colors = {"<gold>", "<aqua>", "<white>", "<green>", "<yellow>", "<red>"};
+        ItemStack bg = createBackgroundItem();
+        for (int i = 0; i < 27; i++) inv.setItem(i, bg);
 
-        for (int i = 0; i < roles.length; i++) {
-            ItemStack item = new ItemStack(mats[i]);
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.displayName(MM.deserialize(colors[i] + "<bold>" + roles[i].name() + "</bold>"));
-                List<Component> lore = new ArrayList<>();
-                lore.add(MM.deserialize("<gray>Click to manage permissions"));
-                meta.lore(lore);
-                meta.addItemFlags(ItemFlag.values());
-                meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "select_role");
-                meta.getPersistentDataContainer().set(ROLE_KEY, PersistentDataType.STRING, roles[i].name());
-                item.setItemMeta(meta);
+        ConfigurationSection roles = config.getConfigurationSection("roles");
+        if (roles != null) {
+            int[] slots = {10, 12, 14, 16, 19, 21, 23, 25};
+            int idx = 0;
+            for (String roleStr : roles.getKeys(false)) {
+                if (idx >= slots.length) break;
+                try {
+                    RoleType role = RoleType.valueOf(roleStr);
+                    ConfigurationSection rs = roles.getConfigurationSection(roleStr);
+                    if (rs == null) continue;
+                    ItemStack item = createSimpleItem(rs, Map.of());
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta != null) {
+                        meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "select_role");
+                        meta.getPersistentDataContainer().set(ROLE_KEY, PersistentDataType.STRING, role.name());
+                        item.setItemMeta(meta);
+                    }
+                    inv.setItem(slots[idx], item);
+                    idx++;
+                } catch (IllegalArgumentException ignored) {
+                }
             }
-            inv.setItem(slots[i], item);
         }
 
-        ItemStack close = new ItemStack(org.bukkit.Material.BARRIER);
-        ItemMeta closeMeta = close.getItemMeta();
-        if (closeMeta != null) {
-            closeMeta.displayName(MM.deserialize("<red><bold>Close</bold></red>"));
-            closeMeta.addItemFlags(ItemFlag.values());
-            closeMeta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "close");
-            close.setItemMeta(closeMeta);
-        }
-        inv.setItem(26, close);
-
+        inv.setItem(26, createNavButton("close", "navigation.close"));
         player.openInventory(inv);
     }
 
-    public static void openPermissionList(@NotNull Player player, @NotNull Island island, @NotNull RoleType role, int page) {
-        PermissionRegistry registry = SkylliaAPI.getPermissionRegistry();
-        List<PermissionNode> allPerms = new ArrayList<>();
-        for (PermissionNode node : registry.nodes()) {
-            if (node != null) allPerms.add(node);
+    public void openCategoryList(@NotNull Player player, @NotNull Island island, @NotNull RoleType role) {
+        String title = config.getString("titles.main", "<white>Categories");
+        Inventory inv = Bukkit.createInventory(new PermissionGuiHolder(island, role, 0), 27, MM.deserialize(title));
+
+        ItemStack bg = createBackgroundItem();
+        for (int i = 0; i < 27; i++) inv.setItem(i, bg);
+
+        ConfigurationSection cats = config.getConfigurationSection("categories");
+        if (cats != null) {
+            for (String catKey : cats.getKeys(false)) {
+                ConfigurationSection cs = cats.getConfigurationSection(catKey);
+                if (cs == null) continue;
+                int slot = cs.getInt("slot", -1);
+                if (slot < 0 || slot >= 27) continue;
+
+                ItemStack item = createSimpleItem(cs, Map.of());
+                ItemMeta meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "open_category");
+                    meta.getPersistentDataContainer().set(CAT_KEY, PersistentDataType.STRING, catKey);
+                    meta.getPersistentDataContainer().set(ROLE_KEY, PersistentDataType.STRING, role.name());
+                    item.setItemMeta(meta);
+                }
+                inv.setItem(slot, item);
+            }
         }
 
-        int totalPages = (int) Math.ceil(allPerms.size() / (double) PAGE_SIZE);
+        inv.setItem(22, createRoleIndicator(role));
+        inv.setItem(26, createNavButton("close", "navigation.close"));
+        player.openInventory(inv);
+    }
+
+    public void openPermissionList(@NotNull Player player, @NotNull Island island, @NotNull RoleType role, @NotNull String category, int page) {
+        ConfigurationSection catSec = config.getConfigurationSection("categories." + category);
+        if (catSec == null) return;
+
+        List<String> permKeys = catSec.getStringList("permissions");
+        String catName = catSec.getString("display-name", category);
+
+        int totalPages = (int) Math.ceil(permKeys.size() / (double) PAGE_SIZE);
         if (totalPages == 0) totalPages = 1;
         if (page < 0) page = 0;
         if (page >= totalPages) page = totalPages - 1;
 
         int start = page * PAGE_SIZE;
-        int end = Math.min(start + PAGE_SIZE, allPerms.size());
-        List<PermissionNode> pagePerms = start < end ? allPerms.subList(start, end) : new ArrayList<>();
+        int end = Math.min(start + PAGE_SIZE, permKeys.size());
+        List<String> pageKeys = start < end ? permKeys.subList(start, end) : new ArrayList<>();
 
-        Inventory inv = Bukkit.createInventory(
-                new PermissionGuiHolder(island, role, page),
-                54,
-                MM.deserialize("<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>" + role.name() + " Permissions</bold></gradient> <gray>(Page " + (page + 1) + "/" + totalPages + ")</gray>")
-        );
+        String title = config.getString("titles.category", "<white>%category% (%role%)")
+                .replace("%category%", stripColor(catName))
+                .replace("%role%", role.name());
+        Inventory inv = Bukkit.createInventory(new PermissionGuiHolder(island, role, page), 54, MM.deserialize(title));
 
-        CompiledPermissions compiled = island.getCompiledPermissions();
-        compiled.ensureUpToDate(registry);
+        ItemStack bg = createBackgroundItem();
+        for (int i = 36; i < 54; i++) inv.setItem(i, bg);
+
+        PermissionRegistry registry = SkylliaAPI.getPermissionRegistry();
+        PermissionService svc = PermissionService.get();
 
         int slot = 0;
-        for (PermissionNode node : pagePerms) {
-            if (node == null) continue;
-            PermissionId pid = registry.getIfPresent(node.node());
+        for (String permKeyStr : pageKeys) {
+            NamespacedKey key = NamespacedKey.fromString(permKeyStr);
+            if (key == null) continue;
+            PermissionId pid = registry.getIfPresent(key);
             if (pid == null) continue;
 
-            boolean value = PermissionService.get().hasPermission(island, role, pid);
-            String permKey = node.node().getNamespace() + ":" + node.node().getKey();
-
-            ItemStack item = new ItemStack(value ? org.bukkit.Material.LIME_DYE : org.bukkit.Material.GRAY_DYE);
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.displayName(MM.deserialize("<white>" + permKey));
-                List<Component> lore = new ArrayList<>();
-                if (value) {
-                    lore.add(MM.deserialize("<green>✓ Enabled"));
-                    lore.add(MM.deserialize("<yellow>Click to disable"));
-                } else {
-                    lore.add(MM.deserialize("<red>✗ Disabled"));
-                    lore.add(MM.deserialize("<yellow>Click to enable"));
-                }
-                String desc = node.description();
-                if (desc != null && !desc.isEmpty()) {
-                    lore.add(MM.deserialize("<dark_gray>" + desc));
-                }
-                meta.lore(lore);
-                meta.addItemFlags(ItemFlag.values());
-                meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "toggle_perm");
-                meta.getPersistentDataContainer().set(PERM_KEY, PersistentDataType.STRING, permKey);
-                item.setItemMeta(meta);
+            boolean enabled = svc.hasPermission(island, role, pid);
+            ItemStack item = createPermissionItem(permKeyStr, enabled, role);
+            if (slot < 36) {
+                inv.setItem(slot, item);
+                slot++;
             }
-            inv.setItem(slot, item);
-            slot++;
-        }
-
-        ItemStack navBg = new ItemStack(org.bukkit.Material.GRAY_STAINED_GLASS_PANE);
-        ItemMeta navBgMeta = navBg.getItemMeta();
-        if (navBgMeta != null) {
-            navBgMeta.displayName(Component.empty());
-            navBg.setItemMeta(navBgMeta);
-        }
-        for (int i = 45; i < 54; i++) {
-            inv.setItem(i, navBg);
         }
 
         if (page > 0) {
-            ItemStack prev = new ItemStack(org.bukkit.Material.ARROW);
-            ItemMeta prevMeta = prev.getItemMeta();
-            if (prevMeta != null) {
-                prevMeta.displayName(MM.deserialize("<yellow>← Previous Page"));
-                prevMeta.addItemFlags(ItemFlag.values());
-                prevMeta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "prev_page");
-                prev.setItemMeta(prevMeta);
-            }
-            inv.setItem(45, prev);
+            inv.setItem(45, createNavButton("prev_page", "navigation.previous-page"));
         }
-
         if (page < totalPages - 1) {
-            ItemStack next = new ItemStack(org.bukkit.Material.ARROW);
-            ItemMeta nextMeta = next.getItemMeta();
-            if (nextMeta != null) {
-                nextMeta.displayName(MM.deserialize("<yellow>Next Page →"));
-                nextMeta.addItemFlags(ItemFlag.values());
-                nextMeta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "next_page");
-                next.setItemMeta(nextMeta);
-            }
-            inv.setItem(53, next);
+            inv.setItem(53, createNavButton("next_page", "navigation.next-page"));
         }
 
-        ItemStack back = new ItemStack(org.bukkit.Material.BARRIER);
+        ItemStack back = createNavButton("back", "navigation.back");
         ItemMeta backMeta = back.getItemMeta();
         if (backMeta != null) {
-            backMeta.displayName(MM.deserialize("<red>Back to Role Selection"));
-            backMeta.addItemFlags(ItemFlag.values());
-            backMeta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "back");
+            backMeta.getPersistentDataContainer().set(ROLE_KEY, PersistentDataType.STRING, role.name());
             back.setItemMeta(backMeta);
         }
         inv.setItem(48, back);
 
-        ItemStack close = new ItemStack(org.bukkit.Material.BARRIER);
-        ItemMeta closeMeta = close.getItemMeta();
-        if (closeMeta != null) {
-            closeMeta.displayName(MM.deserialize("<red><bold>Close</bold></red>"));
-            closeMeta.addItemFlags(ItemFlag.values());
-            closeMeta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "close");
-            close.setItemMeta(closeMeta);
-        }
-        inv.setItem(50, close);
+        inv.setItem(50, createNavButton("close", "navigation.close"));
+        inv.setItem(4, createRoleIndicator(role));
 
         player.openInventory(inv);
     }
 
-    public static void handleClick(@NotNull Player player, @NotNull PermissionGuiHolder holder, @NotNull ItemStack clicked) {
+    public void handleClick(@NotNull Player player, @NotNull PermissionGuiHolder holder, @NotNull ItemStack clicked, boolean leftClick) {
         ItemMeta meta = clicked.getItemMeta();
         if (meta == null) return;
 
@@ -235,7 +230,17 @@ public final class PermissionGui {
                 if (roleStr == null) return;
                 try {
                     RoleType role = RoleType.valueOf(roleStr);
-                    openPermissionList(player, island, role, 0);
+                    openCategoryList(player, island, role);
+                } catch (IllegalArgumentException ignored) {
+                }
+            }
+            case "open_category" -> {
+                String roleStr = pdc.get(ROLE_KEY, PersistentDataType.STRING);
+                String cat = pdc.get(CAT_KEY, PersistentDataType.STRING);
+                if (roleStr == null || cat == null) return;
+                try {
+                    RoleType role = RoleType.valueOf(roleStr);
+                    openPermissionList(player, island, role, cat, 0);
                 } catch (IllegalArgumentException ignored) {
                 }
             }
@@ -250,21 +255,209 @@ public final class PermissionGui {
                 PermissionId pid = PermissionService.get().getPermissionId(key);
                 if (pid == null) return;
 
-                PermissionService.get().togglePermission(island, role, pid);
-                openPermissionList(player, island, role, holder.getPage());
+                boolean current = PermissionService.get().hasPermission(island, role, pid);
+                PermissionService.get().setPermission(island, role, pid, !current);
+
+                String cat = pdc.get(CAT_KEY, PersistentDataType.STRING);
+                if (cat != null) {
+                    openPermissionList(player, island, role, cat, holder.getPage());
+                }
             }
             case "prev_page" -> {
                 RoleType role = holder.getSelectedRole();
                 if (role == null) return;
-                openPermissionList(player, island, role, holder.getPage() - 1);
+                String cat = pdc.get(CAT_KEY, PersistentDataType.STRING);
+                if (cat == null) return;
+                openPermissionList(player, island, role, cat, holder.getPage() - 1);
             }
             case "next_page" -> {
                 RoleType role = holder.getSelectedRole();
                 if (role == null) return;
-                openPermissionList(player, island, role, holder.getPage() + 1);
+                String cat = pdc.get(CAT_KEY, PersistentDataType.STRING);
+                if (cat == null) return;
+                openPermissionList(player, island, role, cat, holder.getPage() + 1);
             }
-            case "back" -> openRoleSelect(player, island);
+            case "back" -> {
+                String roleStr = pdc.get(ROLE_KEY, PersistentDataType.STRING);
+                if (roleStr != null) {
+                    try {
+                        RoleType role = RoleType.valueOf(roleStr);
+                        openCategoryList(player, island, role);
+                    } catch (IllegalArgumentException ignored) {
+                    }
+                }
+            }
             case "close" -> player.closeInventory();
         }
+    }
+
+    private ItemStack createPermissionItem(@NotNull String permKeyStr, boolean enabled, @NotNull RoleType role) {
+        ConfigurationSection permSec = config.getConfigurationSection("permissions." + permKeyStr);
+        String templatePath = enabled ? "templates.permission-enabled" : "templates.permission-disabled";
+        ConfigurationSection template = config.getConfigurationSection(templatePath);
+
+        Material material;
+        String name;
+        List<String> lore;
+        int cmd = -1;
+
+        if (permSec != null) {
+            material = parseMaterial(permSec.getString("material", "STONE"), Material.STONE);
+            name = permSec.getString("display-name", "<white>" + permKeyStr);
+            String desc = permSec.getString("description", "");
+            cmd = permSec.getInt("custom-model-data", -1);
+
+            lore = new ArrayList<>();
+            if (template != null) {
+                lore = template.getStringList("lore");
+            }
+            lore = new ArrayList<>();
+            if (template != null) {
+                for (String line : template.getStringList("lore")) {
+                    lore.add(line);
+                }
+            }
+            for (int i = 0; i < lore.size(); i++) {
+                lore.set(i, lore.get(i)
+                        .replace("%name%", stripColor(name))
+                        .replace("%description%", desc)
+                        .replace("%role%", role.name()));
+            }
+        } else {
+            material = template != null ? parseMaterial(template.getString("material", "STONE"), Material.STONE) : Material.STONE;
+            name = template != null ? template.getString("name", "<white>" + permKeyStr) : "<white>" + permKeyStr;
+            lore = template != null ? template.getStringList("lore") : new ArrayList<>();
+            cmd = template != null ? template.getInt("custom-model-data", -1) : -1;
+        }
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(name));
+            List<Component> loreComp = new ArrayList<>();
+            for (String line : lore) {
+                loreComp.add(MM.deserialize(line));
+            }
+            meta.lore(loreComp);
+            if (cmd >= 0) meta.setCustomModelData(cmd);
+            meta.addItemFlags(ItemFlag.values());
+            meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, "toggle_perm");
+            meta.getPersistentDataContainer().set(PERM_KEY, PersistentDataType.STRING, permKeyStr);
+            meta.getPersistentDataContainer().set(ROLE_KEY, PersistentDataType.STRING, role.name());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private ItemStack createSimpleItem(@NotNull ConfigurationSection sec, @NotNull Map<String, String> placeholders) {
+        Material material = parseMaterial(sec.getString("material", "STONE"), Material.STONE);
+        String name = sec.getString("display-name", sec.getString("name", "<white>Item"));
+        int cmd = sec.getInt("custom-model-data", -1);
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            String processedName = name;
+            for (var e : placeholders.entrySet()) {
+                processedName = processedName.replace(e.getKey(), e.getValue());
+            }
+            meta.displayName(MM.deserialize(processedName));
+
+            List<Component> lore = new ArrayList<>();
+            String desc = sec.getString("description", "");
+            if (!desc.isEmpty()) {
+                lore.add(MM.deserialize("<gray>" + desc));
+            }
+            for (String line : sec.getStringList("lore")) {
+                String processed = line;
+                for (var e : placeholders.entrySet()) {
+                    processed = processed.replace(e.getKey(), e.getValue());
+                }
+                lore.add(MM.deserialize(processed));
+            }
+            if (!lore.isEmpty()) meta.lore(lore);
+            if (cmd >= 0) meta.setCustomModelData(cmd);
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private ItemStack createNavButton(@NotNull String action, @NotNull String configPath) {
+        ConfigurationSection nav = config.getConfigurationSection(configPath);
+        Material material = nav != null ? parseMaterial(nav.getString("material", "BARRIER"), Material.BARRIER) : Material.BARRIER;
+        String name = nav != null ? nav.getString("name", "<red>Button") : "<red>Button";
+        int slot = nav != null ? nav.getInt("slot", -1) : -1;
+        int cmd = nav != null ? nav.getInt("custom-model-data", -1) : -1;
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(name));
+            List<Component> lore = new ArrayList<>();
+            if (nav != null) {
+                for (String line : nav.getStringList("lore")) {
+                    lore.add(MM.deserialize(line));
+                }
+            }
+            if (!lore.isEmpty()) meta.lore(lore);
+            if (cmd >= 0) meta.setCustomModelData(cmd);
+            meta.addItemFlags(ItemFlag.values());
+            meta.getPersistentDataContainer().set(ACTION_KEY, PersistentDataType.STRING, action);
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private ItemStack createRoleIndicator(@NotNull RoleType role) {
+        ConfigurationSection ri = config.getConfigurationSection("templates.role-indicator");
+        Material material = ri != null ? parseMaterial(ri.getString("material", "PLAYER_HEAD"), Material.PLAYER_HEAD) : Material.PLAYER_HEAD;
+        String name = ri != null ? ri.getString("name", "<gold>Role: %role%") : "<gold>Role: %role%";
+        int cmd = ri != null ? ri.getInt("custom-model-data", -1) : -1;
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(name.replace("%role%", role.name())));
+            List<Component> lore = new ArrayList<>();
+            if (ri != null) {
+                for (String line : ri.getStringList("lore")) {
+                    lore.add(MM.deserialize(line.replace("%role%", role.name())));
+                }
+            }
+            if (!lore.isEmpty()) meta.lore(lore);
+            if (cmd >= 0) meta.setCustomModelData(cmd);
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private ItemStack createBackgroundItem() {
+        ConfigurationSection bg = config.getConfigurationSection("background");
+        Material material = bg != null ? parseMaterial(bg.getString("material", "GRAY_STAINED_GLASS_PANE"), Material.GRAY_STAINED_GLASS_PANE) : Material.GRAY_STAINED_GLASS_PANE;
+        String name = bg != null ? bg.getString("name", " ") : " ";
+
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(name));
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private Material parseMaterial(@Nullable String name, @Nullable Material fallback) {
+        if (name == null || name.isEmpty()) return fallback != null ? fallback : Material.STONE;
+        try {
+            return Material.valueOf(name.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            return fallback != null ? fallback : Material.STONE;
+        }
+    }
+
+    private String stripColor(@NotNull String input) {
+        return input.replaceAll("<[^>]+>", "").replaceAll("&[0-9a-fk-orA-FK-OR]", "");
     }
 }
