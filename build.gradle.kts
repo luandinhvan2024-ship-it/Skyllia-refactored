@@ -85,7 +85,6 @@ allprojects {
         compileOnly("org.xerial:sqlite-jdbc:3.51.2.0")
         compileOnly("org.jetbrains:annotations:26.1.0")
         compileOnly("com.electronwill.night-config:toml:3.8.3")
-        compileOnly("net.md-5:bungeecord-api:1.20-R0.2")
         compileOnly("com.mojang:brigadier:1.0.18")
     }
 
@@ -150,21 +149,6 @@ modrinth {
 
     debugMode.set(false)
 
-    additionalFiles.set(
-        listOf(
-            project(":addons:SkylliaOre").tasks.named<Jar>("shadowJar"),
-            //project(":addons:SkylliaInsights").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaChat").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaBank").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaChallenge").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaChest").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaAcidRain").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaIslandValue").tasks.named<Jar>("shadowJar"),
-            project(":addons:SkylliaBackup").tasks.named<Jar>("shadowJar"),
-//            project(":addons:SkylliaExtra").tasks.named<Jar>("shadowJar"),
-        )
-    )
-
     gameVersions.addAll(
         "1.20.6",
         "1.21",
@@ -188,28 +172,10 @@ modrinth {
     loaders.addAll("folia", "paper", "purpur")
 
     versionType.set("release")
-
-//    dependencies {
-//        optional.version("essentialsx")
-//        optional.version("placeholderapi")
-//        optional.version("essentialsx-spawn")
-//        optional.version("worldedit")
-//        optional.version("fastasyncworldedit")
-//    }
 }
 
 tasks.modrinth {
     dependsOn(
-        "shadowJar",
-        ":addons:SkylliaOre:shadowJar",
-        //":addons:SkylliaInsights:shadowJar",
-        ":addons:SkylliaChat:shadowJar",
-        ":addons:SkylliaBank:shadowJar",
-        ":addons:SkylliaChallenge:shadowJar",
-        ":addons:SkylliaChest:shadowJar",
-        ":addons:SkylliaAcidRain:shadowJar",
-        ":addons:SkylliaIslandValue:shadowJar",
-        ":addons:SkylliaBackup:shadowJar",
-//        ":addons:SkylliaExtra:shadowJar"
+        "shadowJar"
     )
 }
