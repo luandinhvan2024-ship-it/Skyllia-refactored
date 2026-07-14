@@ -1,35 +1,32 @@
 package fr.euphyllia.skyllia.gui;
 
-import fr.euphyllia.skyllia.api.permissions.PermissionNode;
+import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
+/**
+ * InventoryHolder for the Permission GUI.
+ * Carries the island context and current view state (selected role + page).
+ * Contains NO logic - just data carrier.
+ */
+public final class PermissionGuiHolder implements InventoryHolder {
 
-public class PermissionGuiHolder implements InventoryHolder {
-
-    public enum GuiMode {
-        ROLE_SELECT,
-        PERMISSION_LIST
-    }
-
-    private final GuiMode mode;
+    private final Island island;
     private final RoleType selectedRole;
     private final int page;
-    private final List<PermissionNode> permissions;
     private Inventory inventory;
 
-    public PermissionGuiHolder(GuiMode mode, RoleType selectedRole, int page, List<PermissionNode> permissions) {
-        this.mode = mode;
+    public PermissionGuiHolder(@NotNull Island island, @Nullable RoleType selectedRole, int page) {
+        this.island = island;
         this.selectedRole = selectedRole;
         this.page = page;
-        this.permissions = permissions;
     }
 
-    public GuiMode getMode() {
-        return mode;
+    public Island getIsland() {
+        return island;
     }
 
     public RoleType getSelectedRole() {
@@ -40,11 +37,7 @@ public class PermissionGuiHolder implements InventoryHolder {
         return page;
     }
 
-    public List<PermissionNode> getPermissions() {
-        return permissions;
-    }
-
-    public void setInventory(Inventory inventory) {
+    public void setInventory(@NotNull Inventory inventory) {
         this.inventory = inventory;
     }
 

@@ -1,14 +1,14 @@
 package fr.euphyllia.skyllia.commands.common.subcommands;
 
-import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
-import fr.euphyllia.skyllia.api.database.IslandPermissionQuery;
-import fr.euphyllia.skyllia.api.permissions.*;
+import fr.euphyllia.skyllia.api.permissions.PermissionId;
+import fr.euphyllia.skyllia.api.permissions.PermissionNode;
+import fr.euphyllia.skyllia.api.permissions.PermissionRegistry;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
-import fr.euphyllia.skyllia.gui.PermissionGui;
+import fr.euphyllia.skyllia.permissions.PermissionService;
 import fr.euphyllia.skyllia.utils.PlayerUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,11 +28,9 @@ public class PermissionSubCommand implements SubCommandInterface {
     private static final List<String> BOOLS = List.of("true", "false", "on", "off");
 
     private final Logger logger = LogManager.getLogger(PermissionSubCommand.class);
-    private final PermissionGui permissionGui;
     private final PermissionId PERMISSION_COMMAND_PERMISSION;
 
-    public PermissionSubCommand(PermissionGui permissionGui) {
-        this.permissionGui = permissionGui;
+    public PermissionSubCommand() {
         this.PERMISSION_COMMAND_PERMISSION = SkylliaAPI.getPermissionRegistry().register(new PermissionNode(
                 new NamespacedKey(SkylliaAPI.getPlugin(), "command.island.permission"),
                 "island.permission.command.permission.name",
@@ -88,7 +86,7 @@ public class PermissionSubCommand implements SubCommandInterface {
             return;
         }
 
-        Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
+        Island island = PermissionService.get().getIsland(player.getUniqueId());
         if (island == null) {
             ConfigLoader.language.sendMessage(player, "island.player.no-island");
             return;
@@ -101,7 +99,7 @@ public class PermissionSubCommand implements SubCommandInterface {
 
         if (args.length == 0 || args[0].equalsIgnoreCase("gui")) {
             Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
-                    permissionGui.openRoleSelect(player, island));
+                    fr.euphyllia.skyllia.gui.PermissionGui.open(player, island));
             return;
         }
 
@@ -179,7 +177,7 @@ public class PermissionSubCommand implements SubCommandInterface {
         }
 
         Boolean explicitBool = (args.length - offset >= 3) ? parseBool(args[offset + 2]) : null;
-        boolean current = island.getCompiledPermissions().has(registry, role, pid);
+        boolean current = PermissionService.get().hasPermission(island, role, pid);
 
         boolean isReadOnly = action.equals("get")
                 || (action.equals("auto") && (args.length - offset < 3 || explicitBool == null));
@@ -213,40 +211,19 @@ public class PermissionSubCommand implements SubCommandInterface {
             next = explicitBool;
         }
 
-        boolean updated = setDbAndRuntime(island, role, pid, next);
+        boolean updated = PermissionService.get().setPermission(island, role, pid, next);
         if (!updated) {
             ConfigLoader.language.sendMessage(player, "island.permission.update.failed");
             return;
         }
 
-        boolean finalValue = island.getCompiledPermissions().has(registry, role, pid);
+        boolean finalValue = PermissionService.get().hasPermission(island, role, pid);
         ConfigLoader.language.sendMessage(player, "island.permission.update.success", Map.of(
                 "%role%", role.name(),
                 "%perm%", toKeyString(key),
                 "%old%", String.valueOf(current),
                 "%new%", String.valueOf(finalValue)
         ));
-    }
-
-    private boolean setDbAndRuntime(Island island, RoleType role, PermissionId pid, boolean value) {
-        IslandPermissionQuery query = Skyllia.getInstance()
-                .getInterneAPI()
-                .getIslandQuery()
-                .getIslandPermissionQuery();
-        if (query == null) return false;
-
-        boolean success = query.set(island.getId(), role, pid, value);
-        if (!success) return false;
-
-        PermissionRegistry registry = SkylliaAPI.getPermissionRegistry();
-        CompiledPermissions compiled = island.getCompiledPermissions();
-        compiled.ensureUpToDate(registry);
-
-        PermissionSet set = compiled.setFor(role);
-        if (set == null) return false;
-
-        set.set(pid, value);
-        return true;
     }
 
     private boolean canEdit(Player player, Island island) {
