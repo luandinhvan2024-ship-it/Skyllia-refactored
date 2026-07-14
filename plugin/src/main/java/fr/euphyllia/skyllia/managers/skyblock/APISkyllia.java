@@ -1,7 +1,6 @@
 package fr.euphyllia.skyllia.managers.skyblock;
 
 import fr.euphyllia.skyllia.api.InterneAPI;
-import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.SkylliaImplementation;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
 import fr.euphyllia.skyllia.api.configuration.IConfigRegistry;
@@ -18,14 +17,11 @@ import fr.euphyllia.skyllia.api.service.TrustService;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.model.IslandSettings;
-import fr.euphyllia.skyllia.api.utils.nms.BiomesImpl;
 import fr.euphyllia.skyllia.api.utils.nms.MobsSpawnImpl;
 import fr.euphyllia.skyllia.api.utils.nms.WorldNMS;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import fr.euphyllia.skyllia.utils.WorldUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -99,36 +95,6 @@ public final class APISkyllia implements SkylliaImplementation {
         return WorldUtils.getWorldConfigs();
     }
 
-    /**
-     * Gets the current location TPS.
-     *
-     * @param location the location for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @Override
-    public double @Nullable [] getTPS(Location location) {
-        if (SkylliaAPI.isFolia()) {
-            return this.interneAPI.getWorldNMS().getTPS(location);
-        } else {
-            return Bukkit.getTPS();
-        }
-    }
-
-    /**
-     * Gets the current chunk TPS.
-     *
-     * @param chunk the chunk for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    @Override
-    public double @Nullable [] getTPS(Chunk chunk) {
-        if (SkylliaAPI.isFolia()) {
-            return this.interneAPI.getWorldNMS().getTPS(chunk);
-        } else {
-            return Bukkit.getTPS();
-        }
-    }
-
     @Override
     public boolean registerCommands(SubCommandInterface commandInterface, String... commands) {
         try {
@@ -149,51 +115,6 @@ public final class APISkyllia implements SkylliaImplementation {
             log.error(exception.getMessage());
             return false;
         }
-    }
-
-    /**
-     * Gets the average tick time for a specific location.
-     *
-     * @param location the location for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    @Override
-    public double @Nullable [] getAverageTickTime(Location location) {
-        if (SkylliaAPI.isFolia()) {
-            return this.interneAPI.getWorldNMS().getAverageTickTimes(location);
-        } else {
-            double[] average = {};
-            long[] times = Bukkit.getTickTimes();
-            for (long time : times) {
-                average = append(average, time / 1_000_000.0);
-            }
-            return average;
-        }
-    }
-
-    /**
-     * Gets the average tick time for a specific chunk.
-     *
-     * @param chunk the chunk for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    @Override
-    public double @Nullable [] getAverageTickTime(Chunk chunk) {
-        if (SkylliaAPI.isFolia()) {
-            return this.interneAPI.getWorldNMS().getAverageTickTimes(chunk);
-        } else {
-            double[] average = {};
-            long[] times = Bukkit.getTickTimes();
-            for (long time : times) {
-                average = append(average, time / 1_000_000.0);
-            }
-            return average;
-        }
-    }
-
-    @Override
-    public BiomesImpl getBiomesImpl() {
-        return this.interneAPI.getBiomesImpl();
     }
 
     @Override
@@ -254,12 +175,5 @@ public final class APISkyllia implements SkylliaImplementation {
     @Override
     public LanguageProvider getLanguageProvider() {
         return ConfigLoader.language;
-    }
-
-    private double[] append(double[] arr, double element) {
-        double[] newArr = new double[arr.length + 1];
-        System.arraycopy(arr, 0, newArr, 0, arr.length);
-        newArr[arr.length] = element;
-        return newArr;
     }
 }

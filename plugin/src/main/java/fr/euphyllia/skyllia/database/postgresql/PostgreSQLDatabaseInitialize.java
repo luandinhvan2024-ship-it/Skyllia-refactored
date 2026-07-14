@@ -79,21 +79,6 @@ public class PostgreSQLDatabaseInitialize extends DatabaseInitializeQuery {
             );
             """;
 
-    private static final String CREATE_ISLANDS_WARP_TABLE = """
-            CREATE TABLE IF NOT EXISTS %s.islands_warp (
-                id          BIGSERIAL PRIMARY KEY,
-                island_id   UUID NOT NULL REFERENCES %s.islands(island_id) ON DELETE CASCADE,
-                warp_name   VARCHAR(100),
-                world_name  VARCHAR(100),
-                x           DOUBLE PRECISION,
-                y           DOUBLE PRECISION,
-                z           DOUBLE PRECISION,
-                pitch       REAL,
-                yaw         REAL,
-                UNIQUE (island_id, warp_name)
-            );
-            """;
-
     private static final String CREATE_SPIRAL_TABLE = """
             CREATE TABLE IF NOT EXISTS %s.spiral (
                 id       INTEGER PRIMARY KEY,
@@ -243,7 +228,6 @@ public class PostgreSQLDatabaseInitialize extends DatabaseInitializeQuery {
         ensureRegionUniqueConstraint(s);
 
         exec(CREATE_ISLANDS_MEMBERS_TABLE.formatted(s, s));
-        exec(CREATE_ISLANDS_WARP_TABLE.formatted(s, s));
         exec(CREATE_SPIRAL_TABLE.formatted(s));
         exec(CREATE_ISLANDS_PERMISSIONS_TABLE.formatted(s, s));
         exec(CREATE_ISLANDS_FLAGS_TABLE.formatted(s, s));

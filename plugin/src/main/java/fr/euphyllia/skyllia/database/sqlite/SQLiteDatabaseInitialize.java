@@ -56,21 +56,6 @@ public class SQLiteDatabaseInitialize extends DatabaseInitializeQuery {
             );
             """;
 
-    private static final String CREATE_ISLANDS_WARP_TABLE = """
-            CREATE TABLE IF NOT EXISTS islands_warp (
-                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                island_id TEXT NOT NULL,
-                warp_name TEXT DEFAULT NULL,
-                world_name TEXT DEFAULT NULL,
-                x REAL DEFAULT NULL,
-                y REAL DEFAULT NULL,
-                z REAL DEFAULT NULL,
-                pitch REAL DEFAULT NULL,
-                yaw REAL DEFAULT NULL,
-                UNIQUE(island_id, warp_name)
-            );
-            """;
-
     private static final String CREATE_SPIRAL_TABLE = """
             CREATE TABLE IF NOT EXISTS spiral (
                 id INTEGER NOT NULL,
@@ -201,7 +186,6 @@ public class SQLiteDatabaseInitialize extends DatabaseInitializeQuery {
     private void createDatabaseAndTables() {
         exec(CREATE_ISLANDS_TABLE);
         exec(CREATE_ISLANDS_MEMBERS_TABLE);
-        exec(CREATE_ISLANDS_WARP_TABLE);
         exec(CREATE_SPIRAL_TABLE);
         exec(CREATE_ISLANDS_PERMISSIONS_TABLE);
         exec(CREATE_ISLANDS_FLAGS_TABLE);

@@ -1,6 +1,5 @@
 config-version = 2
 verbose = false
-prefix = "<light_purple>[Skyllia]</light_purple> : "
 
 [island]
 create-in-progress = "L'île est en cours de création"
@@ -40,10 +39,6 @@ he-is-owner = "Vous ne pouvez pas quitter votre île, car vous en êtes le propr
 confirm = "Vous devez ajouter 'confirm' à la fin de votre commande."
 success = "Vous venez de quitter l'île de %owner%."
 failed = "Vous n'avez pas pu quitter votre île. Si le problème persiste, contactez un administrateur."
-
-[island.access]
-open = "Votre ile est maintenant accessible pour les visiteurs."
-close = "Votre ile n'est maintenant plus accessible pour les visiteurs."
 
 [island.permission]
 usage = "<gray>Usage:</gray> <light_purple>/is permission list [filter]</light_purple>\n<gray> - </gray><light_purple>/is permission <role> <namespace:key> [true|false]</light_purple>\n<gray> - </gray><light_purple>/is permission toggle <role> <namespace:key></light_purple>\n<gray> - </gray><light_purple>/is permission set <role> <namespace:key> <true|false></light_purple>"
@@ -180,51 +175,10 @@ player-not-banned = "Le joueur n'est pas banni."
 success = "Le joueur a été débanni."
 failed = "Le joueur n'a pas pu être débanni pour une raison inconnue."
 
-[island.biome]
-args-missing = "La commande est incomplète : /skyllia biome <biome>"
-only-on-island = "La commande ne peut être exécutée que sur une île."
-not-exist = "Le biome %s n'existe pas."
-permission-denied = "Vous n'avez pas la permission d'utiliser ce biome."
-change-in-progress = "Changement de biome en cours... Un message vous avertira quand ce sera terminé."
-chunk-success = "Le changement de biome dans la zone est terminé ! Quittez puis revenez pour voir les changements."
-island-success = "Le changement de biome sur votre île est terminé ! Quittez puis revenez pour voir les changements."
-
-[island.visit]
-args-missing = "Vous devez spécifier l'île que vous souhaitez visiter : /skyllia visit <joueur>"
-no-island = "Le joueur n'a pas d'île."
-island-private = "L'île est fermée."
-island-closed = "L'île est fermée."
-banned = "Vous êtes banni de l'île."
-success = "Vous avez été téléporté sur l'île de %player%."
-no-island-location = "Aucune île n'a été trouvée à cet endroit."
-
-[island.visit.set]
-success = "Le point de visite de votre île a été défini à votre position actuelle."
-
 [island.generic]
 unexpected-error = "Une erreur est survenue. Veuillez contacter un administrateur."
 location-unsafe = "La position n'est pas sécurisée ! Téléportation impossible."
 command-in-progress = "La commande est déjà en cours d'exécution, veuillez patienter un instant."
-
-[island.warp]
-create-success = "Le warp %s a été créé avec succès."
-args-missing = "Vous devez spécifier le nom du warp à enregistrer : /skyllia warp <create/delete/teleport> <nom>"
-delete-home-forbidden = "Vous ne pouvez pas supprimer le warp 'home' de votre île."
-reserved-name = "Ce nom de warp est réservé et ne peut pas être utilisé."
-delete-spawn-forbidden = "Vous ne pouvez pas supprimer le warp d'apparition. Utilisez /skyllia setspawn pour le déplacer."
-delete-success = "Le warp a été supprimé avec succès."
-warp-not-exist = "Le warp n'existe pas."
-teleport-success = "Vous avez été téléporté au warp."
-
-[island.trust]
-success = "Le joueur a été ajouté à votre liste de confiance jusqu'au prochain redémarrage ou jusqu'à ce que vous le supprimiez. Notez qu'une personne de confiance dispose d'autant d'autorisations qu'un membre de votre île."
-args-missing = "La commande est incomplète : /skyllia trust <player>"
-already-trusted = "Ce joueur est déjà dans votre liste de confiance."
-
-[island.untrust]
-success = "Le membre n'est plus dans votre liste de confiance."
-failed = "Une erreur s'est produite lors du retrait de la personne de votre liste de confiance."
-args-missing = "La commande est incomplète : /skyllia untrust <player>"
 
 [island.admin]
 delete-args-missing = "Le nom du joueur est manquant."
@@ -275,207 +229,6 @@ failed = "Le changement de hauteur n'a pas pu être effectué. Veuillez vérifie
 
 [misc]
 unknown-command = "<red>Commande inconnue."
-
-[addons.bank]
-no-permissions = "<red>Vous n'avez pas l'autorisation d'utiliser cette commande."
-error = "Une erreur s'est produite lors de l'exécution de la commande. Veuillez contacter un administrateur."
-
-[addons.bank.display]
-title = "<gold>=== Banque de l'île ===</gold>"
-balance = "<yellow>Solde de l'île : </yellow><white>%amount%</white>"
-
-[addons.bank.player]
-player-only = "<red>Cette commande ne peut être utilisée que par un joueur."
-no-island = "<red>Vous n’avez pas d’île."
-# TOP
-unknown-command = "<yellow>Commande inconnue. Utiliser /is bank [deposit|withdraw|balance|top]"
-no-permission-top = "<red>Vous n'avez pas la permission d'utiliser cette commande.</red>"
-invalid-page = "<red>%input% n'est pas un numéro de page valide.</red>"
-top-header = "<gold>=== Pages %page%/%max_page% avec %total% joueurs ===</gold>"
-top-empty = "<red>Aucun joueur n'a d'argent dans la banque de son île.</red>"
-top-line = "<yellow>#%rank%</yellow> <white>%owner%</white> <gray>-</gray> <white>%amount%</white>"
-top-self = "<yellow>#%rank%</yellow> <white>%owner% (vous)</white> <gray>-</gray> <white>%amount%</white>"
-top-self-unranked = "<white>%owner% (vous)</white> n'êtes pas classé pour une raison inconnue."
-
-# Deposit
-no-permission-deposit = "<red>Vous n'avez pas la permission de déposer de l'argent."
-usage-deposit = "<yellow>Usage : /is bank deposit <amount>"
-invalid-amount = "<red>Montant invalide."
-invalid-amount-positive = "<red>Le montant doit être positif."
-not-enough-money-player = "<red>Vous n'avez pas assez d'argent."
-success-deposit = "<green>A déposé %amount% sur la banque de votre île."
-error-deposit-refunded = "<red>Une erreur s'est produite. Votre argent a été remboursé."
-critical-error-deposit = "<red>Erreur critique : dépôt échoué, remboursement également échoué. Contactez un administrateur."
-error-withdraw-player = "<red>Erreur de retrait : %errorMessage%"
-
-# Withdraw
-no-permission-withdraw = "<red>Vous n'avez pas l'autorisation de retirer de l'argent."
-usage-withdraw = "<yellow>Usage : /is bank withdraw <amount>"
-not-enough-money-island = "<red>Votre île n'a pas assez d'argent."
-success-withdraw = "<green>Retiré %amount% de la banque de votre île."
-error-deposit-player-refund-island = "<red>Erreur lors du dépôt sur votre portefeuille. La banque de l'île a été remboursée."
-critical-error-withdraw = "<red>Erreur critique : le retrait vers votre portefeuille et le remboursement sur l'île ont échoué. Contactez un administrateur."
-error-withdraw-island = "<red>Une erreur s'est produite lors du retrait de votre banque d'ile."
-
-# Balance
-no-permission-balance = "<red>Vous n'avez pas l'autorisation de consulter le solde."
-balance = "<green>Solde bancaire de votre île : %amount%"
-error-get-balance = "<red>Impossible de récupérer le solde de votre île."
-
-[addons.bank.admin]
-usage-root = "<yellow>Usage: /skylliadmin bank <balance|deposit|withdraw|setbalance> <player> [amount]"
-unknown-command = "<yellow>Commande inconnue. Utilisez /skylliadmin bank <balance|deposit|withdraw|setbalance> <player> [amount]"
-
-usage-balance = "<yellow>Usage: /skylliadmin bank balance <player>"
-usage-deposit = "<yellow>Usage: /skylliadmin bank deposit <player> <amount>"
-usage-withdraw = "<yellow>Usage: /skylliadmin bank withdraw <player> <amount>"
-usage-set-balance = "<yellow>Usage: /skylliadmin bank setbalance <player> <amount>"
-
-player-not-found = "<red>Le joueur n'a pas été trouvé."
-player-not-island = "<red>Le joueur n'a pas d'île."
-
-invalid-amount = "<red>Montant invalide."
-invalid-amount-positive = "<red>Le montant doit être positif."
-invalid-amount-negative = "<red>Le montant doit être négatif."
-
-island-balance = "<green>Solde de l'île de %player_name% : %amount%"
-island-error-balance = "<red>Impossible de récupérer le solde de l'île de %player_name%."
-
-deposit-success = "<green>Déposé %amount% sur le solde de l'ile de %player_name%"
-deposit-error = "<red>Une erreur s'est produite lors du dépôt sur le solde de l'ile de %player_name%."
-
-success-withdraw = "<green>Retiré %amount% du solde de l'ile de %player_name%"
-error-withdraw = "<red>Une erreur s'est produite lors du retrait du solde de l'ile de %player_name%."
-
-set-balance-success = "<green>Le solde de l'île de %player_name% a été défini sur %amount%"
-set-balance-error = "<red>Une erreur s'est produite lors de la définition du solde de l'île de %player_name%."
-
-[addons.ore.display]
-title = "<gold>=== Générateur ===</gold>"
-generator = "<yellow>Générateur : </yellow><white>%ore%</white>"
-
-[addons.challenge.admin]
-no-permission = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-unknown-command = "<red>Commande inconnue. Utilisez /skylliadmin challenge reload"
-reload-success = "<green>Les missions ont été rechargées."
-
-[addons.challenge.player]
-player-only = "<red>Cette commande ne peut être utilisée que par un joueur."
-no-island = "<red>Vous n’avez pas d’île."
-complete = "<green>Vous avez complété le défi: %challenge_name%!</green>"
-notify-complete = "<green>Félicitation ! %player_name% a complété son défi: %challenge_name%!</green> pour son île."
-
-[addons.challenge.display]
-title = "<gold>=== Challenges d'île ===</gold>"
-progression = "<!italic><gray>Progression : <white>%progression%/%max_times%</white>"
-requirements = "<!italic><gray>Objectifs :</gray>"
-can-validate = "<!italic><green>Cliquer pour valider</green>"
-cannot-validate = "<!italic><red>Vous n'avez pas encore tous les prérequis pour terminer ce défi.</red>"
-previous = "<!italic><gray>Précédent</gray>"
-next = "<!italic><gray>Suivant</gray>"
-cooldown = "<!italic>⏳ Cooldown restant: %time_left%"
-
-[addons.challenge.display.requirement]
-count = "<!italic><gray>Objectif %collected%/%required% %met%</gray>"
-
-[addons.challenge.requirement.potion]
-display = "<!italic><gray>- Avoir l'effet %potion_name% (variante %potion_data%) x %amount%.</gray>"
-
-[addons.challenge.requirement.player_consume]
-display = "<!italic><gray>- Avoir consommé %amount% de %material%.</gray>"
-
-[addons.challenge.requirement.kill_entity]
-display = "<!italic><gray>- Avoir tué %amount% de %entity_type%.</gray>"
-
-[addons.challenge.requirement.fishing]
-display = "<!italic><gray>- Avoir pêché %amount% de %entity_type%.</gray>"
-
-[addons.challenge.requirement.enchant]
-display = "<!italic><gray>- Avoir enchanté %amount% d'objets avec %enchantment_name% (niveau %enchantment_level%).</gray>"
-
-[addons.challenge.requirement.block_break]
-display = "<!italic><gray>- Avoir cassé %amount% de %material%.</gray>"
-
-[addons.challenge.requirement.nearby_entity]
-display = "<!italic><gray>- Avoir %amount% de %entity_type% à proximité ( %radius% m)</gray>"
-
-[addons.challenge.requirement.entity]
-display = "<!italic><gray>- Avoir %amount% de %entity_type% sur son île.</gray>"
-display_radius = "<!italic><gray>- Avoir %amount% de %entity_type% dans un rayon de %radius% m.</gray>"
-
-[addons.challenge.requirement.item]
-display = "<!italic><gray>- Avoir %amount% de %item_name%</gray>"
-
-[addons.challenge.requirement.vault]
-display = "<!italic><gray>- Avoir %amount% dans son compte.</gray>"
-
-[addons.challenge.requirement.bank]
-display = "<!italic><gray>- Avoir %amount% dans le compte de l'île.</gray>"
-
-[addons.challenge.requirement.craft]
-display = "<!italic><gray>- Avoir crafté %amount% de %item_name%</gray>"
-
-[addons.challenge.level]
-complete = "<green>Vous avez complété le palier de défis : %level_name% !</green>"
-notify-complete = "<green>Félicitations ! L'île de %player_name% a complété le palier de défis : %level_name% !</green>"
-
-[addons.challenge.level.display]
-title = "<gold>=== Paliers de défis ===</gold>"
-progression = "<gray>Défis : <white>%done%/%required%</white> (total %total%)"
-max-skip = "<!italic><gray>Vous pouvez ignorer jusqu'à %max_skip% défi(s).</gray>"
-completed = "<green>✔ Terminé</green>"
-unlocked = "<yellow>Débloqué — en cours</yellow>"
-locked = "<red>🔒 Verrouillé</red>"
-
-[addons.challenge.reward.bank]
-success = "<green>Vous avez reçu %amount% dans le compte de l'île en récompense du défi %challenge_name%.</green>"
-failed = "<red>Une erreur s'est produite lors de l'ajout de %amount% dans le compte de l'île en récompense du défi %challenge_name%.</red>"
-
-[addons.island-chest]
-no-permission = "<red>Votre rang ne vous permet pas d'utiliser ce coffre."
-inventory-title = "<gold>=== Coffre de l'île de %island_name% ===</gold>"
-open = "<green>Vous avez ouvert le coffre de l'île.</green>"
-
-[addons.island-value]
-no-permissions = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-player-only-command = "<red>Cette commande ne peut être utilisée que par un joueur."
-not-on-island = "<red>Vous n'avez pas d'île."
-already-scanning = "<yellow>Un scan est déjà en cours pour votre île."
-scan-started = "<green>Scan de votre île en cours..."
-scan-completed = "<green>Scan terminé ! Score : <white>%score%</white> | Niveau : <white>%level%</white>"
-scan-start-failed = "<red>Impossible de démarrer le scan."
-level-command-usage = "<yellow>Usage : /is islevel <scan|top|rank>"
-invalid-page = "<red>%input% n'est pas un numéro de page valide."
-top-header = "<gold>=== Classement des îles — Page %page%/%max_page% (%total% îles) ===</gold>"
-top-empty = "<red>Aucune île n'est encore classée."
-top-line = "<yellow>#%rank%</yellow> <white>%owner%</white> <gray>-</gray> Nv. <aqua>%level%</aqua> <dark_gray>(%score% pts)</dark_gray>"
-rank-self = "<yellow>#%rank%</yellow> <white>%owner% (vous)</white> <gray>-</gray> Nv. <aqua>%level%</aqua> <dark_gray>(%score% pts)</dark_gray>"
-rank-self-unranked = "<white>%owner% (vous)</white> <gray>n'êtes pas encore classé.</gray>"
-
-[addons.island-value.notifier]
-title = "<gold>⛏ Scan en cours... <white>%done%<gray>/<white>%total% <yellow>(%percent%%)</yellow>"
-sub-title = "<gray>Veuillez patienter...</gray>"
-
-[addons.acid-island]
-water-contact = "<red>⚠ L'eau acide vous brûle !</red>"
-rain-contact = "<dark_aqua>☔ La pluie acide vous ronge la peau !</dark_aqua>"
-
-[addons.chat]
-no-permission = "<red>Vous n'avez pas la permission d'utiliser le chat d'île.</red>"
-enabled = "<green>Chat d'île activé.</green>"
-disabled = "<gray>Chat d'île désactivé.</gray>"
-
-[addons.bank.command.deposit]
-name = "Banque : dépôt"
-description = "Autorise à déposer de l'argent sur la banque de l'île."
-
-[addons.bank.command.withdraw]
-name = "Banque : retrait"
-description = "Autorise à retirer de l'argent de la banque de l'île."
-
-[addons.chest.command.permission]
-name = "Coffre d'île"
-description = "Autorise à ouvrir le coffre partagé de l'île."
 
 [island.permission.command.access]
 name = "Accès : ouvrir/fermer"
@@ -1033,67 +786,6 @@ description = "Contrôle l'apparition des Illusionnistes."
 permission-has = "%player% a la permission : %permission%"
 permission-missing = "%player% n'a pas la permission : %permission%"
 
-[addons.backup.player]
-player-only = "<red>Cette commande ne peut être utilisée que par un joueur."
-disabled = "<red>Les backups joueurs sont désactivés sur ce serveur."
-cooldown = "<red>Veuillez attendre <yellow>%minutes%m %seconds%s</yellow> avant de demander un nouveau backup."
-started = "<green>Backup de votre île en cours, veuillez patienter..."
-success = "<green>Backup créé : <white>%file%"
-uploading = "<gray>Envoi du backup vers le serveur distant..."
-failed = "<red>Le backup a échoué. Veuillez contacter un administrateur."
-no-permission = "<red>Vous n'avez pas la permission de faire un backup de votre île."
-
-[addons.backup.admin]
-usage = "<yellow>Usage : /isadmin backup <joueur|all>"
-started = "<green>Backup de l'île de <white>%player%</white> en cours..."
-success = "<green>Backup créé pour <white>%player%</white> : <white>%file%"
-failed = "<red>Le backup de l'île de <white>%player%</white> a échoué."
-all-started = "<green>Backup de TOUTES les îles en cours, cela peut prendre du temps..."
-all-done = "<green>Terminé : <white>%count%</white> îles sauvegardées."
-
-[addons.skylliaextra.player.setdescription]
-player-only = "<red>Cette commande ne peut être exécutée que par un joueur."
-no-island = "<red>Vous n'avez pas d'île !"
-no-permission = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-permission-denied = "<red>Votre rôle sur l'île ne vous permet pas de modifier la description."
-usage = "<yellow>Utilisation : <white>/is setdescription <description> <yellow>| Utilisez <white>reset <yellow>pour effacer."
-reset = "<green>La description de l'île a été réinitialisée."
-success = "<green>Description de l'île définie : <white>%description%"
-failed = "<red>Impossible de sauvegarder la description de l'île. Veuillez réessayer."
-
-[addons.skylliaextra.player.setname]
-player-only = "<red>Cette commande ne peut être exécutée que par un joueur."
-no-island = "<red>Vous n'avez pas d'île !"
-no-permission = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-permission-denied = "<red>Votre rôle sur l'île ne vous permet pas de modifier le nom."
-usage = "<yellow>Utilisation : <white>/is setname <nom> <yellow>| Utilisez <white>reset <yellow>pour effacer."
-reset = "<green>Le nom de l'île a été réinitialisé."
-success = "<green>Nom de l'île défini : <white>%name%"
-failed = "<red>Impossible de sauvegarder le nom de l'île. Veuillez réessayer."
-
-[addons.skylliaextra.admin.setdescription]
-no-permission = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-usage = "<yellow>Utilisation : <white>/isadmin setdescription <joueur> <description> <yellow>| Utilisez <white>reset <yellow>pour effacer."
-player-not-found = "<red>Joueur <white>%player%</white> introuvable."
-no-island = "<red>Ce joueur n'a pas d'île."
-reset = "<green>La description de l'île de <white>%player%</white> a été réinitialisée."
-success = "<green>Description de l'île de <white>%player%</white> définie : <white>%description%"
-failed = "<red>Impossible de sauvegarder la description de l'île."
-
-[addons.skylliaextra.admin.setname]
-no-permission = "<red>Vous n'avez pas la permission d'utiliser cette commande."
-usage = "<yellow>Utilisation : <white>/isadmin setname <joueur> <nom> <yellow>| Utilisez <white>reset <yellow>pour effacer."
-player-not-found = "<red>Joueur <white>%player%</white> introuvable."
-no-island = "<red>Ce joueur n'a pas d'île."
-reset = "<green>Le nom de l'île de <white>%player%</white> a été réinitialisé."
-success = "<green>Nom de l'île de <white>%player%</white> défini : <white>%name%"
-failed = "<red>Impossible de sauvegarder le nom de l'île."
-
-[addons.skylliaextra.display]
-title = "<gray>--- Extra information d'île ---</gray>"
-name = "<aqua>Nom :</aqua> <white>%name%</white>"
-description = "<aqua>Description :</aqua> <white>%description%</white>"
-
 [update-checker]
 update-available-one = "<gold>Skyllia est en retard d'<red>1 version</red> ! Dernière version : <green>%version%</green>. Télécharge-la ici : <aqua><click:open_url:'%url%'>%url%</click></aqua>"
 update-available-many = "<gold>Skyllia est en retard de <red>%behind% versions</red> ! Dernière version : <green>%version%</green>. Télécharge-la ici : <aqua><click:open_url:'%url%'>%url%</click></aqua>"
@@ -1117,3 +809,17 @@ success = "Le point d'apparition de votre île a été défini."
 [island.permission.command.set_spawn]
 name = "Définir l'apparition"
 description = "Permet de déplacer le point d'apparition de l'île."
+
+[island.lock]
+close = "Island locked"
+open = "Island unlocked"
+
+[island.coop]
+args-missing = "You must specify a player name"
+success = "%coop_name% is now cooped"
+already-coop = "%coop_name% is already cooped"
+
+[island.uncoop]
+args-missing = "You must specify a player name"
+success = "%coop_name% is no longer cooped"
+failed = "%coop_name% is not cooped"

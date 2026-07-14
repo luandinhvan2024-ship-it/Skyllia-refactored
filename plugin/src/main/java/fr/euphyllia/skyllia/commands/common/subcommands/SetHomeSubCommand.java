@@ -77,8 +77,8 @@ public class SetHomeSubCommand implements SubCommandInterface {
                 }
 
                 Bukkit.getAsyncScheduler().runNow(plugin, aScheduler -> {
-                    boolean updateOrCreateHome = island.addWarps("home", playerLocation, false);
-                    if (updateOrCreateHome) {
+                    boolean updateHome = island.setSpawnLocation(playerLocation);
+                    if (updateHome) {
                         ConfigLoader.language.sendMessage(player, "island.home.set.success");
                     } else {
                         ConfigLoader.language.sendMessage(player, "island.generic.unexpected-error");

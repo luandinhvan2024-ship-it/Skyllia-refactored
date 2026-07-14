@@ -365,50 +365,6 @@ public class WorldNMS extends fr.euphyllia.skyllia.api.utils.nms.WorldNMS {
         chunk.markUnsaved();
     }
 
-    /**
-     * Gets the current location TPS.
-     *
-     * @param location the location for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist
-     */
-    @Override
-    public double @Nullable [] getTPS(Location location) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R7.WorldNMS.getTPSHelper(location);
-    }
-
-    /**
-     * Gets the current chunk TPS.
-     *
-     * @param chunk the chunk for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist
-     */
-    @Override
-    public double @Nullable [] getTPS(Chunk chunk) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R7.WorldNMS.getTPSHelper(chunk);
-    }
-
-    /**
-     * Gets the average tick times for a specific location.
-     *
-     * @param location the location for which to get the average tick times
-     * @return an array of average tick times, or null if the region doesn't exist
-     */
-    @Override
-    public double @Nullable [] getAverageTickTimes(Location location) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R7.WorldNMS.getAverageTickTimesHelper(location);
-    }
-
-    /**
-     * Gets the average tick times for a specific chunk.
-     *
-     * @param chunk the chunk for which to get the average tick times
-     * @return an array of average tick times, or null if the region doesn't exist
-     */
-    @Override
-    public double @Nullable [] getAverageTickTimes(Chunk chunk) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R7.WorldNMS.getAverageTickTimesHelper(chunk);
-    }
-
     @Override
     public List<Entity> getEntities(World craftWorld, final @Nullable Entity except, final BoundingBox boundingBox, Predicate<? super Entity> filter) {
         final ServerLevel nms = ((CraftWorld) craftWorld).getHandle();

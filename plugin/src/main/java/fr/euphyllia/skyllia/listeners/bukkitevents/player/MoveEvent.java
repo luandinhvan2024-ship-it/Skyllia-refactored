@@ -3,7 +3,6 @@ package fr.euphyllia.skyllia.listeners.bukkitevents.player;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.coordinate.RegionCoordinate;
 import fr.euphyllia.skyllia.api.skyblock.Island;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.api.utils.helper.RegionHelper;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import fr.euphyllia.skyllia.listeners.ListenersUtils;
@@ -52,10 +51,9 @@ public class MoveEvent implements Listener {
         Island island = SkylliaAPI.getIslandByRegion(position);
         if (island == null) return;
 
-        WarpIsland homeWarp = island.getWarpByName("home");
-
-        if (homeWarp != null && homeWarp.location() != null && homeWarp.location().getWorld() != null) {
-            Location homeLocation = homeWarp.location().clone();
+        Location spawnLocation = island.getSpawnLocation(world);
+        if (spawnLocation != null) {
+            Location homeLocation = spawnLocation.clone();
             homeLocation.setY(homeLocation.getY() + 0.5);
 
             player.teleportAsync(homeLocation, PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {

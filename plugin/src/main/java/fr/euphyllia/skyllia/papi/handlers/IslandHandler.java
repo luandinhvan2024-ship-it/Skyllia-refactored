@@ -47,8 +47,6 @@ import java.util.UUID;
  *   <tr><td>island_disabled</td><td>{@code true} if the island is disabled</td></tr>
  * </table>
  *
- * <p>Warp-related placeholders are handled by {@link WarpHandler}.
- *
  * <p>Also handles the following global / online-player placeholders:
  * <table>
  *   <tr><th>Placeholder</th><th>Returns</th></tr>

@@ -13,7 +13,6 @@ import fr.euphyllia.skyllia.api.skyblock.enums.RemovalCause;
 import fr.euphyllia.skyllia.api.skyblock.model.IslandSettings;
 import fr.euphyllia.skyllia.api.skyblock.model.Position;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.api.utils.Keys;
 import fr.euphyllia.skyllia.cache.SkyblockCache;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the creation, retrieval, and modification of Skyblock islands, including member management,
- * island permissions, warps, and other properties.
+ * island permissions, and other properties.
  */
 public class SkyblockManager {
 
@@ -555,89 +554,6 @@ public class SkyblockManager {
             cacheIslandAndIndex(island);
         }
         return island;
-    }
-
-    /**
-     * Adds a warp to an island.
-     *
-     * @param islandId       The UUID of the island.
-     * @param name           The name of the warp.
-     * @param playerLocation The warp location.
-     */
-    public Boolean addWarpsIsland(UUID islandId, String name, Location playerLocation) {
-        boolean ok = plugin.getInterneAPI().getIslandQuery().getIslandWarpQuery().updateWarp(islandId, name, playerLocation);
-        if (ok) {
-            cache.invalidateWarps(islandId);
-        }
-        return ok;
-    }
-
-    /**
-     * Deletes a warp from an island.
-     *
-     * @param islandId The UUID of the island.
-     * @param name     The warp name.
-     */
-    public Boolean delWarpsIsland(UUID islandId, String name) {
-        boolean ok = plugin.getInterneAPI().getIslandQuery().getIslandWarpQuery().deleteWarp(islandId, name);
-        if (ok) {
-            cache.invalidateWarps(islandId);
-        }
-        return ok;
-    }
-
-    /**
-     * Retrieves a warp by its name from an island.
-     *
-     * @param islandId The UUID of the island.
-     * @param name     The warp name.
-     */
-    public @Nullable WarpIsland getWarpIslandByName(UUID islandId, String name) {
-        WarpIsland cached = cache.getWarp(islandId, name, () -> loadWarpFromDb(islandId, name));
-        if (cached != null) return cached;
-
-        return loadWarpFromDb(islandId, name);
-    }
-
-    private @Nullable WarpIsland loadWarpFromDb(UUID islandId, String name) {
-        WarpIsland warp = plugin.getInterneAPI().getIslandQuery().getIslandWarpQuery().getWarpByName(islandId, name);
-        if (warp != null) cache.putWarp(islandId, name, warp);
-        return warp;
-    }
-
-    /**
-     * Retrieves all warps for an island.
-     *
-     * @param islandId The UUID of the island.
-     */
-    public @Nullable List<WarpIsland> getWarpsIsland(UUID islandId) {
-        List<WarpIsland> cached = cache.getWarps(islandId, () -> loadWarpsFromDb(islandId));
-        if (cached != null) return cached;
-
-        return loadWarpsFromDb(islandId);
-    }
-
-    private @Nullable List<WarpIsland> loadWarpsFromDb(UUID islandId) {
-        List<WarpIsland> warps = plugin.getInterneAPI().getIslandQuery().getIslandWarpQuery().getListWarp(islandId);
-        if (warps != null) cache.putWarps(islandId, warps);
-        return warps;
-    }
-
-    /**
-     * Cache-only variant of {@link #getWarpsIsland(UUID)} for callers that must
-     * never block on a JDBC round-trip (e.g. PlaceholderAPI handlers on the main
-     * thread). On a miss, an asynchronous load is scheduled and an empty list is
-     * returned; the data becomes available on a later call.
-     */
-    public List<WarpIsland> getWarpsIslandCachedOnly(UUID islandId) {
-        List<WarpIsland> cached = cache.getWarps(islandId, () -> loadWarpsFromDb(islandId));
-        if (cached != null) return cached;
-
-        cache.refreshAsync(
-                new SkyblockCache.RefreshKey(SkyblockCache.DOMAIN_WARPS, islandId),
-                () -> loadWarpsFromDb(islandId)
-        );
-        return List.of();
     }
 
     /**

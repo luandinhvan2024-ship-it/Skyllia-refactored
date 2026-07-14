@@ -1,0 +1,4 @@
+config-version = 1
+
+[messages]
+prefix = "<gradient:#4FC3F7:#0288D1><bold>Skyllia</bold></gradient> <gray>»</gray> "

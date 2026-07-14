@@ -88,7 +88,6 @@ public class WorldsManager {
             worldCreator.biomeProvider(
                     FixedBiomeProvider.fromConfig(
                             worldConfig.getEnvironment(),
-                            this.api.getBiomesImpl(),
                             worldConfig.getBiomeId()
                     )
             );

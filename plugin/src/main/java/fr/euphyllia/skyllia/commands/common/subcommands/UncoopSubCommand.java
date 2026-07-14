@@ -1,0 +1,131 @@
+package fr.euphyllia.skyllia.commands.common.subcommands;
+
+import fr.euphyllia.skyllia.Skyllia;
+import fr.euphyllia.skyllia.api.SkylliaAPI;
+import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
+import fr.euphyllia.skyllia.api.permissions.PermissionId;
+import fr.euphyllia.skyllia.api.permissions.PermissionNode;
+import fr.euphyllia.skyllia.api.skyblock.Island;
+import fr.euphyllia.skyllia.configuration.ConfigLoader;
+import fr.euphyllia.skyllia.utils.PlayerUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+public class UncoopSubCommand implements SubCommandInterface {
+
+    private final Logger logger = LogManager.getLogger(UncoopSubCommand.class);
+
+    private final PermissionId ISLAND_MANAGE_COOP_PERMISSION;
+
+    public UncoopSubCommand() {
+        this.ISLAND_MANAGE_COOP_PERMISSION = SkylliaAPI.getPermissionRegistry().register(
+                new PermissionNode(
+                        new NamespacedKey(Skyllia.getInstance(), "command.island.manage_coop"),
+                        "island.permission.command.manage_coop.name",
+                        "island.permission.command.manage_coop.description"
+                )
+        );
+    }
+
+    @Override
+    public void onExecute(@NotNull Plugin plugin, @NotNull CommandSender sender, @NotNull String[] args) {
+        if (!(sender instanceof Player player)) {
+            ConfigLoader.language.sendMessage(sender, "island.player.player-only-command");
+            return;
+        }
+
+        if (!PlayerUtils.hasPermission(player, "skyllia.island.command.uncoop")) {
+            ConfigLoader.language.sendMessage(player, "island.player.permission-denied");
+            return;
+        }
+
+        if (args.length < 1) {
+            ConfigLoader.language.sendMessage(player, "island.uncoop.args-missing");
+            return;
+        }
+
+        try {
+            String targetName = args[0];
+
+            UUID targetId = Bukkit.getPlayerUniqueId(targetName);
+            if (targetId == null) {
+                ConfigLoader.language.sendMessage(player, "island.player.not-found");
+                return;
+            }
+
+            Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
+            if (island == null) {
+                ConfigLoader.language.sendMessage(player, "island.player.no-island");
+                return;
+            }
+
+            boolean allowed = SkylliaAPI.getPermissionsManager()
+                    .hasPermission(player, island, ISLAND_MANAGE_COOP_PERMISSION, null, ConfigLoader.general.getDebugSettings().permission());
+
+            if (!allowed) {
+                ConfigLoader.language.sendMessage(player, "island.player.permission-denied");
+                return;
+            }
+
+            boolean removed = SkylliaAPI
+                    .getTrustService()
+                    .removeTrusted(island.getId(), targetId);
+
+            if (removed) {
+                ConfigLoader.language.sendMessage(player, "island.uncoop.success", Map.of("%coop_name", targetName));
+            } else {
+                ConfigLoader.language.sendMessage(player, "island.uncoop.failed", Map.of("%coop_name%", targetName));
+            }
+        } catch (Exception e) {
+            logger.log(Level.FATAL, e.getMessage(), e);
+            ConfigLoader.language.sendMessage(player, "island.generic.unexpected-error");
+        }
+    }
+
+    @Override
+    public @NotNull List<String> onTabComplete(@NotNull Plugin plugin, @NotNull CommandSender sender, @NotNull String[] args) {
+        if (!(sender instanceof Player player)) {
+            return List.of();
+        }
+
+        if (args.length != 1) {
+            return List.of();
+        }
+
+        Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
+        if (island == null) {
+            return List.of();
+        }
+
+        Set<UUID> trusted = SkylliaAPI
+                .getTrustService()
+                .getTrusted(island.getId());
+
+        if (trusted == null || trusted.isEmpty()) {
+            return List.of();
+        }
+
+        String prefix = args[0].toLowerCase();
+
+        return trusted.stream()
+                .map(Bukkit::getOfflinePlayer)
+                .map(OfflinePlayer::getName)
+                .filter(name -> name != null && name.toLowerCase().startsWith(prefix))
+                .sorted()
+                .collect(Collectors.toList());
+    }
+}

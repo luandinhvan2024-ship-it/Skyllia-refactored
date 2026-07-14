@@ -3,12 +3,12 @@ package fr.euphyllia.skyllia.commands.common.subcommands;
 import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
+import fr.euphyllia.skyllia.api.configuration.WorldConfig;
 import fr.euphyllia.skyllia.api.permissions.PermissionId;
 import fr.euphyllia.skyllia.api.permissions.PermissionNode;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.cache.commands.InviteCacheExecution;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import fr.euphyllia.skyllia.utils.PlayerUtils;
@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -227,12 +228,22 @@ public class InviteSubCommand implements SubCommandInterface {
                 }
 
                 if (ConfigLoader.general.getIslandSettings().teleportWhenAcceptingInvitation()) {
-                    WarpIsland home = islandOwner.getWarpByName("home"); // cache warps TTL 5s
-                    if (home == null || home.location() == null || home.location().getWorld() == null) {
+                    List<WorldConfig> registeredWorlds = SkylliaAPI.getRegisteredWorlds();
+                    if (registeredWorlds.isEmpty()) {
                         ConfigLoader.language.sendMessage(playerWantJoin, "island.invite.home-not-found");
                         return;
                     }
-                    playerWantJoin.teleportAsync(home.location(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    World world = Bukkit.getWorld(registeredWorlds.getFirst().getWorldName());
+                    if (world == null) {
+                        ConfigLoader.language.sendMessage(playerWantJoin, "island.invite.home-not-found");
+                        return;
+                    }
+                    org.bukkit.Location home = islandOwner.getSpawnLocation(world);
+                    if (home == null) {
+                        ConfigLoader.language.sendMessage(playerWantJoin, "island.invite.home-not-found");
+                        return;
+                    }
+                    playerWantJoin.teleportAsync(home, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
             } else {
                 ConfigLoader.language.sendMessage(playerWantJoin, "island.invite.member-limit-reached");

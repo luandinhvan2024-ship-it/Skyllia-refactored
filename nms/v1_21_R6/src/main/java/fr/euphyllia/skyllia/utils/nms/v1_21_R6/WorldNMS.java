@@ -417,32 +417,6 @@ public class WorldNMS extends fr.euphyllia.skyllia.api.utils.nms.WorldNMS {
     }
 
     @Override
-    public double @Nullable [] getTPS(Location location) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R5.WorldNMS.TPS(location);
-    }
-
-    @Override
-    public double @Nullable [] getTPS(Chunk chunk) {
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R5.WorldNMS.TPS(chunk);
-    }
-
-    @Override
-    public double @Nullable [] getAverageTickTimes(Location location) {
-        final int x = location.blockX() >> 4;
-        final int z = location.blockZ() >> 4;
-        final ServerLevel world = ((CraftWorld) location.getWorld()).getHandle();
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R5.WorldNMS.getAverageTickTime(world, x, z);
-    }
-
-    @Override
-    public double @Nullable [] getAverageTickTimes(Chunk chunk) {
-        final int x = chunk.getX();
-        final int z = chunk.getZ();
-        final ServerLevel world = ((CraftWorld) chunk.getWorld()).getHandle();
-        return fr.euphyllia.skyllia.utils.nms.v1_21_R5.WorldNMS.getAverageTickTime(world, x, z);
-    }
-
-    @Override
     public List<Entity> getEntities(World craftWorld, final @Nullable Entity except, final BoundingBox boundingBox, Predicate<? super Entity> filter) {
         final ServerLevel nms = ((CraftWorld) craftWorld).getHandle();
         AABB bb = new AABB(boundingBox.getMinX(), boundingBox.getMinY(), boundingBox.getMinZ(), boundingBox.getMaxX(), boundingBox.getMaxY(), boundingBox.getMaxZ());

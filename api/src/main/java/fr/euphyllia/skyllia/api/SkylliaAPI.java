@@ -17,13 +17,11 @@ import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.model.IslandSettings;
 import fr.euphyllia.skyllia.api.skyblock.model.Position;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.api.utils.nms.BiomesImpl;
 import fr.euphyllia.skyllia.api.utils.nms.MobsSpawnImpl;
 import fr.euphyllia.skyllia.api.utils.nms.WorldNMS;
 import io.papermc.paper.ServerBuildInfo;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus;
@@ -188,47 +186,6 @@ public final class SkylliaAPI {
     }
 
     /**
-     * Gets the current location TPS.
-     *
-     * @param location the location for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    public static double @Nullable [] getTPS(Location location) {
-        return implementation.getTPS(location);
-    }
-
-    /**
-     * Gets the current chunk TPS.
-     *
-     * @param chunk the chunk for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    public static double @Nullable [] getTPS(Chunk chunk) {
-        return implementation.getTPS(chunk);
-    }
-
-
-    /**
-     * Gets the average tick time for a specific location.
-     *
-     * @param location the location for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    public static double @Nullable [] getAverageTickTime(Location location) {
-        return implementation.getAverageTickTime(location);
-    }
-
-    /**
-     * Gets the average tick time for a specific chunk.
-     *
-     * @param chunk the chunk for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    public static double @Nullable [] getAverageTickTime(Chunk chunk) {
-        return implementation.getAverageTickTime(chunk);
-    }
-
-    /**
      * Retrieves all valid (non-disabled) Skyllia islands from the database.
      *
      * @return A thread-safe list of active islands.
@@ -257,14 +214,6 @@ public final class SkylliaAPI {
      */
     public static boolean registerAdminCommands(SubCommandInterface commandInterface, String... commands) {
         return implementation.registerAdminCommands(commandInterface, commands);
-    }
-
-    /**
-     * Do not use. Reserved for Skyllia internal NMS bridges.
-     */
-    @ApiStatus.Internal
-    public static BiomesImpl getBiomesImpl() {
-        return implementation.getBiomesImpl();
     }
 
     /**

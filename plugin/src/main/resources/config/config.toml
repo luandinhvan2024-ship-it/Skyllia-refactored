@@ -36,13 +36,6 @@ threads = -1
 # Increase to reduce CPU/RAM spikes. 50ms = 1 chunk per tick.
 delay-ms = 50
 
-[settings.island.chunk-processing.biome]
-# Number of threads for the biome change scheduler.
-# -1 = auto: max(4, cpu_cores / 8). Minimum is always 4.
-threads = -1
-# Delay in milliseconds between each biome chunk operation.
-delay-ms = 50
-
 [settings.island.invitation]
 # Automatically teleports the player to the island when accepting an invitation.
 teleport-when-accepting = true
@@ -83,8 +76,6 @@ pitch = 0.0
 permission = false
 
 [settings.cache.ttl]
-# Duration (in seconds) before cached warp data expires. -1 = never expires, 0 = disabled.
-warps = -1
 # Duration (in seconds) before cached member name→role mappings expire. -1 = never expires, 0 = disabled.
 name-role = -1
 # Duration (in seconds) before cached player role data expires. -1 = never expires, 0 = disabled.

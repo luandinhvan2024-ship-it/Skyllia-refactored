@@ -26,6 +26,7 @@ public class ConfigLoader implements IConfigRegistry {
     public static LanguageConfigManager language;
     public static PermissionsV2ConfigManager permissionsV2;
     public static IslandFlagsConfigManager islandFlags;
+    public static MessagesConfigManager messages;
 
     private static CommentedFileConfig generalConfig;
     private static CommentedFileConfig databaseConfig;
@@ -58,6 +59,7 @@ public class ConfigLoader implements IConfigRegistry {
         language = new LanguageConfigManager();
         permissionsV2 = new PermissionsV2ConfigManager(permissionsV2Config);
         islandFlags = new IslandFlagsConfigManager(flagsConfig);
+        messages = new MessagesConfigManager();
 
         configManagers.add(general);
         configManagers.add(database);
@@ -68,6 +70,7 @@ public class ConfigLoader implements IConfigRegistry {
         configManagers.add(language);
         configManagers.add(permissionsV2);
         configManagers.add(islandFlags);
+        configManagers.add(messages);
 
         //reloadConfigs();
 

@@ -1,6 +1,7 @@
 package fr.euphyllia.skyllia.utils.generators;
 
-import fr.euphyllia.skyllia.api.utils.nms.BiomesImpl;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.generator.BiomeProvider;
@@ -21,7 +22,6 @@ public class FixedBiomeProvider extends BiomeProvider {
 
     public static @NotNull FixedBiomeProvider fromConfig(
             @NotNull World.Environment env,
-            @NotNull BiomesImpl biomesImpl,
             String biomeIdOrName
     ) {
         Biome fallback = switch (env) {
@@ -34,7 +34,14 @@ public class FixedBiomeProvider extends BiomeProvider {
             return new FixedBiomeProvider(fallback);
         }
 
-        Biome parsed = biomesImpl.getBiome(biomeIdOrName);
+        Biome parsed = Registry.BIOME.get(NamespacedKey.fromString(biomeIdOrName));
+        if (parsed == null) {
+            try {
+                parsed = Biome.valueOf(biomeIdOrName.toUpperCase(java.util.Locale.ROOT));
+            } catch (IllegalArgumentException ignored) {
+                parsed = null;
+            }
+        }
         return new FixedBiomeProvider(parsed != null ? parsed : fallback);
     }
 

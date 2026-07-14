@@ -171,7 +171,6 @@ public class CreateSubCommand implements SubCommandInterface {
                                 island.setBuildHeight(worldName, HeightType.MAX, setting.maxBuildHeight());
                             }
                             if (first) {
-                                island.addWarps("home", center, true);
                                 island.setSpawnLocation(center);
 
                                 Skyllia.getInstance().getInterneAPI()

@@ -17,11 +17,9 @@ import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.model.IslandSettings;
 import fr.euphyllia.skyllia.api.skyblock.model.Position;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.api.utils.nms.BiomesImpl;
 import fr.euphyllia.skyllia.api.utils.nms.MobsSpawnImpl;
 import fr.euphyllia.skyllia.api.utils.nms.WorldNMS;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -139,22 +137,6 @@ public interface SkylliaImplementation {
     List<WorldConfig> getRegisteredWorlds();
 
     /**
-     * Gets the current location TPS.
-     *
-     * @param location the location for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    double @Nullable [] getTPS(Location location);
-
-    /**
-     * Gets the current chunk TPS.
-     *
-     * @param chunk the chunk for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft TPS (1m, 5m, 15m in Paper-Server)
-     */
-    double @Nullable [] getTPS(Chunk chunk);
-
-    /**
      * Registers commands with the provided command interface.
      *
      * @param commandInterface The command interface to use for the commands.
@@ -171,28 +153,6 @@ public interface SkylliaImplementation {
      * @return True if the admin commands were successfully registered, false otherwise.
      */
     boolean registerAdminCommands(SubCommandInterface commandInterface, String... commands);
-
-    /**
-     * Gets the average tick time for a specific location.
-     *
-     * @param location the location for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    double @Nullable [] getAverageTickTime(Location location);
-
-    /**
-     * Gets the average tick time for a specific chunk.
-     *
-     * @param chunk the chunk for which to get the average tick time
-     * @return average tick time (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist, or Minecraft average tick time (1m, 5m, 15m in Paper-Server)
-     */
-    double @Nullable [] getAverageTickTime(Chunk chunk);
-
-    /**
-     * Do not use. Reserved for Skyllia internal NMS bridges.
-     */
-    @ApiStatus.Internal
-    BiomesImpl getBiomesImpl();
 
     /**
      * Do not use. Reserved for Skyllia internal NMS bridges.

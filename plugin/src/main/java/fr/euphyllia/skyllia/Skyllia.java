@@ -15,11 +15,11 @@ import fr.euphyllia.skyllia.listeners.ListenersRegistrar;
 import fr.euphyllia.skyllia.papi.SkylliaExpansion;
 import fr.euphyllia.skyllia.sgbd.exceptions.DatabaseException;
 import fr.euphyllia.skyllia.utils.UpdateCheckerTask;
-import net.md_5.bungee.api.ChatColor;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -204,7 +204,9 @@ public class Skyllia extends JavaPlugin {
         lines.add(SEP);
 
         ConsoleCommandSender console = Bukkit.getConsoleSender();
-        lines.forEach(console::sendMessage);
+        for (String line : lines) {
+            console.sendMessage(net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection().deserialize(line));
+        }
     }
 
     private String center(String text, int lineWidth) {

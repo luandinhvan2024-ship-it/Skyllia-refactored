@@ -3,7 +3,6 @@ package fr.euphyllia.skyllia.cache;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.api.utils.ExpiringValue;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +47,7 @@ public class SkyblockCache {
      * Refresh-deduplication domains. Each cached data type gets its own domain
      * so that a {@link RefreshKey} of (domain, key) uniquely identifies one
      * logical cache entry: the same island UUID can be refreshing its members
-     * and its warps at the same time without the two reloads deduplicating
+     * and its state at the same time without the two reloads deduplicating
      * against each other. These constants are public because SkyblockManager's
      * cache-only accessors build RefreshKeys with them on cold misses.
      */
@@ -58,8 +56,6 @@ public class SkyblockCache {
     public static final String DOMAIN_OWNER = "owner";
     public static final String DOMAIN_MEMBERS = "members";
     public static final String DOMAIN_BANNED = "banned";
-    public static final String DOMAIN_WARPS = "warps";
-    public static final String DOMAIN_WARP = "warp";
     public static final String DOMAIN_STATE = "state";
     public static final String DOMAIN_NAME = "islandName";
     public static final String DOMAIN_DESCRIPTION = "islandDescription";
@@ -101,17 +97,6 @@ public class SkyblockCache {
      * Same as {@link #roleByMember} but keyed by last-known player name (lowercased by callers).
      */
     private final ConcurrentHashMap<MemberNameKey, ExpiringValue<RoleType>> roleByMemberName = new ConcurrentHashMap<>();
-
-    /**
-     * Full warp list by island id. Kept in sync with {@link #warpByKey} by {@link #putWarps}.
-     */
-    private final ConcurrentHashMap<UUID, ExpiringValue<List<WarpIsland>>> warpsByIsland = new ConcurrentHashMap<>();
-    /**
-     * Single warp by (island id, lowercased warp name). Denormalized from
-     * {@link #warpsByIsland} so the hot path (resolving one warp for a
-     * teleport or a spawn lookup) does not scan a list.
-     */
-    private final ConcurrentHashMap<WarpKey, ExpiringValue<WarpIsland>> warpByKey = new ConcurrentHashMap<>();
 
     /**
      * Aggregated island state (disabled / private / locked / max members /
@@ -315,33 +300,6 @@ public class SkyblockCache {
         put(roleByMemberName, new MemberNameKey(islandId, nameLower), role, ConfigLoader.general.getCacheTtlSettings().nameRole());
     }
 
-    public @Nullable List<WarpIsland> getWarps(UUID islandId) {
-        return getWarps(islandId, null);
-    }
-
-    public @Nullable List<WarpIsland> getWarps(UUID islandId, @Nullable Runnable reload) {
-        return serve(warpsByIsland, islandId, DOMAIN_WARPS, reload);
-    }
-
-    public void putWarps(UUID islandId, List<WarpIsland> warps) {
-        put(warpsByIsland, islandId, List.copyOf(warps), ConfigLoader.general.getCacheTtlSettings().warps());
-        for (WarpIsland w : warps) {
-            put(warpByKey, new WarpKey(islandId, w.warpName().toLowerCase(Locale.ROOT)), w, ConfigLoader.general.getCacheTtlSettings().warps());
-        }
-    }
-
-    public @Nullable WarpIsland getWarp(UUID islandId, String name) {
-        return getWarp(islandId, name, null);
-    }
-
-    public @Nullable WarpIsland getWarp(UUID islandId, String name, @Nullable Runnable reload) {
-        return serve(warpByKey, new WarpKey(islandId, name.toLowerCase(Locale.ROOT)), DOMAIN_WARP, reload);
-    }
-
-    public void putWarp(UUID islandId, String name, WarpIsland warp) {
-        put(warpByKey, new WarpKey(islandId, name.toLowerCase(Locale.ROOT)), warp, ConfigLoader.general.getCacheTtlSettings().warps());
-    }
-
     public @Nullable IslandStateSnapshot getState(UUID islandId) {
         return getState(islandId, null);
     }
@@ -380,11 +338,10 @@ public class SkyblockCache {
 
     /**
      * Evicts everything known about an island except member/role data:
-     * the island object, its state, owner, member and banned lists, and all
-     * its warps. Called on structural changes (creation, deletion, resize)
-     * where any of these could have changed. Member roles are handled by
-     * {@link #invalidateMembers(UUID)}, which the relevant write paths call
-     * separately.
+     * the island object, its state, owner, member and banned lists. Called on
+     * structural changes (creation, deletion, resize) where any of these could
+     * have changed. Member roles are handled by {@link #invalidateMembers(UUID)},
+     * which the relevant write paths call separately.
      */
     public void invalidateIsland(UUID islandId) {
         islandById.remove(islandId);
@@ -392,9 +349,6 @@ public class SkyblockCache {
         ownerByIsland.remove(islandId);
         membersByIsland.remove(islandId);
         bannedByIsland.remove(islandId);
-        warpsByIsland.remove(islandId);
-
-        warpByKey.keySet().removeIf(k -> k.islandId.equals(islandId));
     }
 
     /**
@@ -409,15 +363,6 @@ public class SkyblockCache {
         bannedByIsland.remove(islandId);
         roleByMember.keySet().removeIf(k -> k.islandId.equals(islandId));
         roleByMemberName.keySet().removeIf(k -> k.islandId().equals(islandId));
-    }
-
-    /**
-     * Evicts an island's warp list and every denormalized per-name warp entry.
-     * Called after a warp is added, moved or deleted.
-     */
-    public void invalidateWarps(UUID islandId) {
-        warpsByIsland.remove(islandId);
-        warpByKey.keySet().removeIf(k -> k.islandId.equals(islandId));
     }
 
     /**
@@ -470,12 +415,6 @@ public class SkyblockCache {
      * Composite key: role of one player (by lowercased last-known name) on one island.
      */
     private record MemberNameKey(UUID islandId, String nameLower) {
-    }
-
-    /**
-     * Composite key: one warp (by lowercased name) on one island.
-     */
-    private record WarpKey(UUID islandId, String nameLower) {
     }
 
     /**

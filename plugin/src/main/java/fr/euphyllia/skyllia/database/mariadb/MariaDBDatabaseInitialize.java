@@ -55,23 +55,6 @@ public class MariaDBDatabaseInitialize extends DatabaseInitializeQuery {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
             """;
 
-    private static final String CREATE_ISLANDS_WARP_TABLE = """
-            CREATE TABLE IF NOT EXISTS islands_warp (
-                id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-                island_id CHAR(36) NOT NULL,
-                warp_name VARCHAR(100) DEFAULT NULL,
-                world_name VARCHAR(100) DEFAULT NULL,
-                x DOUBLE DEFAULT NULL,
-                y DOUBLE DEFAULT NULL,
-                z DOUBLE DEFAULT NULL,
-                pitch FLOAT DEFAULT NULL,
-                yaw FLOAT DEFAULT NULL,
-                PRIMARY KEY (id),
-                UNIQUE KEY unique_warp_per_island (island_id, warp_name),
-                CONSTRAINT islands_warp_FK FOREIGN KEY (island_id) REFERENCES islands (island_id)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-            """;
-
     private static final String CREATE_SPIRAL_TABLE = """
             CREATE TABLE IF NOT EXISTS spiral (
                 id INT NOT NULL,
@@ -240,7 +223,6 @@ public class MariaDBDatabaseInitialize extends DatabaseInitializeQuery {
         exec(CREATE_ISLANDS_TABLE);
         exec(CREATE_PERMISSION_REGISTRY_TABLE);
         exec(CREATE_ISLANDS_MEMBERS_TABLE);
-        exec(CREATE_ISLANDS_WARP_TABLE);
         exec(CREATE_SPIRAL_TABLE);
         exec(CREATE_ISLANDS_PERMISSIONS_TABLE);
         exec(CREATE_ISLANDS_FLAGS_TABLE);

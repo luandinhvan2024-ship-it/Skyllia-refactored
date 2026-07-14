@@ -4,9 +4,7 @@ import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.coordinate.RegionCoordinate;
 import fr.euphyllia.skyllia.api.event.SkyblockChangeSizeEvent;
-import fr.euphyllia.skyllia.api.event.SkyblockCreateWarpEvent;
 import fr.euphyllia.skyllia.api.event.SkyblockDeleteEvent;
-import fr.euphyllia.skyllia.api.event.SkyblockDeleteWarpEvent;
 import fr.euphyllia.skyllia.api.permissions.CompiledPermissions;
 import fr.euphyllia.skyllia.api.permissions.IslandFlags;
 import fr.euphyllia.skyllia.api.permissions.PermissionRegistry;
@@ -14,11 +12,11 @@ import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.enums.RemovalCause;
 import fr.euphyllia.skyllia.api.skyblock.model.HeightType;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.api.utils.Keys;
 import fr.euphyllia.skyllia.api.utils.helper.RegionHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
@@ -147,52 +145,6 @@ public class IslandHook extends Island {
             return true;
         }
         return false;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @Nullable List<WarpIsland> getWarps() {
-        return this.plugin.getInterneAPI().getSkyblockManager().getWarpsIsland(this.islandId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public @Nullable WarpIsland getWarpByName(String name) {
-        return this.plugin.getInterneAPI().getSkyblockManager().getWarpIslandByName(this.islandId, name);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean addWarps(String name, Location loc, boolean ignoreEvent) {
-        SkyblockCreateWarpEvent event = new SkyblockCreateWarpEvent(this, name, loc);
-        if (!ignoreEvent) {
-            Bukkit.getPluginManager().callEvent(event);
-            if (event.isCancelled()) {
-                return false;
-            }
-        }
-        return this.plugin.getInterneAPI().getSkyblockManager()
-                .addWarpsIsland(this.islandId, event.getWarpName(), event.getWarpLocation());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean delWarp(String name) {
-        SkyblockDeleteWarpEvent event = new SkyblockDeleteWarpEvent(this, name);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
-            return false;
-        }
-        return this.plugin.getInterneAPI().getSkyblockManager()
-                .delWarpsIsland(this.islandId, event.getWarpName());
     }
 
     /**
@@ -392,6 +344,76 @@ public class IslandHook extends Island {
         this.islandCenterLocations.put(location.getWorld(), location);
         boundsCache.remove(location.getWorld().getName());
         this.plugin.getInterneAPI().getSkyblockManager().updateCenterLocation(this, location);
+    }
+
+    private static final NamespacedKey SPAWN_NAMESPACED_KEY = new NamespacedKey("skyllia", "home");
+    private static final String SPAWN_DATA_KEY = "location";
+
+    @Override
+    public boolean hasCustomSpawn() {
+        return SkylliaAPI.getIslandCustomDataQuery().has(
+                SPAWN_NAMESPACED_KEY, this, SPAWN_DATA_KEY
+        );
+    }
+
+    @Override
+    public Location getSpawnLocation(World world) {
+        String serialized = SkylliaAPI.getIslandCustomDataQuery().get(
+                SPAWN_NAMESPACED_KEY, this, SPAWN_DATA_KEY, PersistentDataType.STRING
+        );
+        if (serialized != null) {
+            Location parsed = parseSpawnLocation(serialized, world);
+            if (parsed != null) {
+                return parsed;
+            }
+        }
+        return getCenterLocation(world);
+    }
+
+    @Override
+    public boolean setSpawnLocation(Location location) {
+        if (location == null || location.getWorld() == null) {
+            return false;
+        }
+        String serialized = serializeSpawnLocation(location);
+        return SkylliaAPI.getIslandCustomDataQuery().set(
+                SPAWN_NAMESPACED_KEY, this, SPAWN_DATA_KEY, PersistentDataType.STRING, serialized
+        );
+    }
+
+    @Override
+    public boolean resetSpawn() {
+        return SkylliaAPI.getIslandCustomDataQuery().remove(
+                SPAWN_NAMESPACED_KEY, this, SPAWN_DATA_KEY
+        );
+    }
+
+    private static String serializeSpawnLocation(Location location) {
+        return location.getWorld().getName()
+                + ":" + location.getX()
+                + ":" + location.getY()
+                + ":" + location.getZ()
+                + ":" + location.getPitch()
+                + ":" + location.getYaw();
+    }
+
+    private static @Nullable Location parseSpawnLocation(String serialized, World world) {
+        String[] parts = serialized.split(":");
+        if (parts.length != 6) return null;
+        try {
+            String worldName = parts[0];
+            double x = Double.parseDouble(parts[1]);
+            double y = Double.parseDouble(parts[2]);
+            double z = Double.parseDouble(parts[3]);
+            float pitch = Float.parseFloat(parts[4]);
+            float yaw = Float.parseFloat(parts[5]);
+            if (!worldName.equals(world.getName())) {
+                return null;
+            }
+            return new Location(world, x, y, z, yaw, pitch);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     @Override

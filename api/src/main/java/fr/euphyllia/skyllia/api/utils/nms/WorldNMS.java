@@ -65,38 +65,6 @@ public abstract class WorldNMS {
         resetChunk(craftWorld, new ChunkCoordinate(position.x(), position.z()));
     }
 
-    /**
-     * Gets the current location TPS.
-     *
-     * @param location the location for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist
-     */
-    public abstract double @Nullable [] getTPS(Location location);
-
-    /**
-     * Gets the current chunk TPS.
-     *
-     * @param chunk the chunk for which to get the TPS
-     * @return current location TPS (5s, 15s, 1m, 5m, 15m in Folia-Server), or null if the region doesn't exist
-     */
-    public abstract double @Nullable [] getTPS(Chunk chunk);
-
-    /**
-     * Gets the average tick times for a specific location.
-     *
-     * @param location the location for which to get the average tick times
-     * @return an array of average tick times, or null if the region doesn't exist
-     */
-    public abstract double @Nullable [] getAverageTickTimes(Location location);
-
-    /**
-     * Gets the average tick times for a specific chunk.
-     *
-     * @param chunk the chunk for which to get the average tick times
-     * @return an array of average tick times, or null if the region doesn't exist
-     */
-    public abstract double @Nullable [] getAverageTickTimes(Chunk chunk);
-
     public List<Entity> getEntities(World craftWorld, final @Nullable Entity except, final BoundingBox bb, Predicate<? super Entity> filter) {
         return List.of();
     }

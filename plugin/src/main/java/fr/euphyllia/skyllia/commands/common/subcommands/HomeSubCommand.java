@@ -3,7 +3,6 @@ package fr.euphyllia.skyllia.commands.common.subcommands;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
 import fr.euphyllia.skyllia.api.skyblock.Island;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import fr.euphyllia.skyllia.api.utils.helper.RegionHelper;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import fr.euphyllia.skyllia.utils.PlayerUtils;
@@ -48,18 +47,10 @@ public class HomeSubCommand implements SubCommandInterface {
                 return;
             }
 
-            WarpIsland warpIsland = island.getWarpByName("home");
             double rayon = island.getSize();
             World islandWorld = WorldUtils.getWorldConfigs().getFirst().getWorld();
 
-            Location loc;
-            if (island.hasCustomSpawn()) {
-                loc = island.getSpawnLocation(islandWorld);
-            } else if (warpIsland != null && warpIsland.location() != null) {
-                loc = warpIsland.location().clone();
-            } else {
-                loc = island.getSpawnLocation(islandWorld);
-            }
+            Location loc = island.getSpawnLocation(islandWorld);
             loc.add(0, 0.5, 0);
 
             player.teleportAsync(loc, PlayerTeleportEvent.TeleportCause.PLUGIN).thenRun(() -> {

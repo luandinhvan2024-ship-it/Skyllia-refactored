@@ -5,7 +5,6 @@ import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.Players;
 import fr.euphyllia.skyllia.api.skyblock.enums.RemovalCause;
-import fr.euphyllia.skyllia.cache.commands.CacheCommands;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import fr.euphyllia.skyllia.managers.skyblock.SkyblockManager;
 import fr.euphyllia.skyllia.utils.PlayerUtils;
@@ -49,8 +48,6 @@ public class JoinEvent implements Listener {
 
         Bukkit.getAsyncScheduler().runNow(api.getPlugin(), scheduledTask -> {
             try {
-                CacheCommands.refreshFor(playerId);
-
                 final SkyblockManager skyblockManager = api.getSkyblockManager();
                 final Island island = SkylliaAPI.getIslandByPlayerId(playerId);
 

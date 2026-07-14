@@ -1,6 +1,5 @@
 package fr.euphyllia.skyllia.listeners.bukkitevents.player;
 
-import fr.euphyllia.skyllia.cache.commands.CacheCommands;
 import fr.euphyllia.skyllia.cache.commands.CommandCacheExecution;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -15,7 +14,6 @@ public class QuitEvent implements Listener {
     public void onPlayerQuit(final PlayerQuitEvent event) {
         UUID playerId = event.getPlayer().getUniqueId();
         CommandCacheExecution.purgePlayer(playerId);
-        CacheCommands.invalidatePlayer(playerId);
     }
 
 }

@@ -21,7 +21,6 @@ public class IslandQuery {
     private DatabaseInitializeQuery databaseInitializeQuery;
     private IslandDataQuery islandDataQuery;
     private IslandUpdateQuery islandUpdateQuery;
-    private IslandWarpQuery islandWarpQuery;
     private IslandMemberQuery islandMemberQuery;
     private IslandPermissionQuery islandPermissionQuery;
     private IslandCustomDataQuery islandCustomDataQuery;
@@ -46,7 +45,6 @@ public class IslandQuery {
             this.databaseInitializeQuery = new MariaDBDatabaseInitialize(loader);
             this.islandDataQuery = new MariaDBIslandData(loader);
             this.islandUpdateQuery = new MariaDBIslandUpdate(loader);
-            this.islandWarpQuery = new MariaDBIslandWarp(loader);
             this.islandMemberQuery = new MariaDBIslandMember(loader);
             this.islandPermissionQuery = new MariaDBIslandPermission(loader);
             this.islandCustomDataQuery = new MariaDBIslandCustomData(loader);
@@ -60,7 +58,6 @@ public class IslandQuery {
             this.databaseInitializeQuery = new PostgreSQLDatabaseInitialize(loader);
             this.islandDataQuery = new PostgreSQLIslandData(loader);
             this.islandUpdateQuery = new PostgreSQLIslandUpdate(loader);
-            this.islandWarpQuery = new PostgreSQLIslandWarp(loader);
             this.islandMemberQuery = new PostgreSQLIslandMember(loader);
             this.islandPermissionQuery = new PostgreSQLIslandPermission(loader);
             this.islandCustomDataQuery = new PostgreSQLIslandCustomData(loader);
@@ -80,7 +77,6 @@ public class IslandQuery {
             this.databaseInitializeQuery = new SQLiteDatabaseInitialize(sqliteLoader);
             this.islandDataQuery = new SQLiteIslandData(sqliteLoader);
             this.islandUpdateQuery = new SQLiteIslandUpdate(sqliteLoader);
-            this.islandWarpQuery = new SQLiteIslandWarp(sqliteLoader);
             this.islandMemberQuery = new SQLiteIslandMember(sqliteLoader);
             this.islandPermissionQuery = new SQLiteIslandPermission(sqliteLoader);
             this.islandCustomDataQuery = new SQLiteIslandCustomData(sqliteLoader);
@@ -106,10 +102,6 @@ public class IslandQuery {
 
     public IslandUpdateQuery getIslandUpdateQuery() {
         return this.islandUpdateQuery;
-    }
-
-    public IslandWarpQuery getIslandWarpQuery() {
-        return this.islandWarpQuery;
     }
 
     public IslandMemberQuery getIslandMemberQuery() {

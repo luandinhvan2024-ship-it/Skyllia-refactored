@@ -59,7 +59,6 @@ public class InterneAPI {
     // NMS bridges
     private WorldNMS worldNMS;
     private PlayerNMS playerNMS;
-    private BiomesImpl biomesImpl;
     private ExplosionEntityImpl explosionEntityImpl;
     private MobsSpawnImpl mobsSpawnImpl;
     // DB + managers
@@ -105,7 +104,6 @@ public class InterneAPI {
         try {
             this.worldNMS = (WorldNMS) Class.forName(pkg + "WorldNMS").getDeclaredConstructor().newInstance();
             this.playerNMS = (PlayerNMS) Class.forName(pkg + "PlayerNMS").getDeclaredConstructor().newInstance();
-            this.biomesImpl = (BiomesImpl) Class.forName(pkg + "BiomeNMS").getDeclaredConstructor().newInstance();
             this.explosionEntityImpl = (ExplosionEntityImpl) Class.forName(pkg + "ExplosionEntityImpl").getDeclaredConstructor().newInstance();
             this.mobsSpawnImpl = (MobsSpawnImpl) Class.forName(pkg + "MobSpawnNMS").getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
@@ -228,10 +226,6 @@ public class InterneAPI {
 
     public PlayerNMS getPlayerNMS() {
         return this.playerNMS;
-    }
-
-    public BiomesImpl getBiomesImpl() {
-        return this.biomesImpl;
     }
 
     public ExplosionEntityImpl getExplosionEntityImpl() {

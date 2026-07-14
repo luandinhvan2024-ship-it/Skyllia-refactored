@@ -87,58 +87,6 @@ public class WorldNMS extends fr.euphyllia.skyllia.api.utils.nms.WorldNMS {
         };
     }
 
-    public static double @Nullable [] getTPSHelper(Location location) {
-        return Bukkit.getRegionTPS(location);
-    }
-
-    public static double @Nullable [] getTPSHelper(Chunk chunk) {
-        return Bukkit.getRegionTPS(chunk);
-    }
-
-    public static double @Nullable [] getAverageTickTimesHelper(Location location) {
-        final int x = location.blockX() >> 4;
-        final int z = location.blockZ() >> 4;
-        final ServerLevel world = ((CraftWorld) location.getWorld()).getHandle();
-        io.papermc.paper.threadedregions.ThreadedRegionizer.ThreadedRegion<io.papermc.paper.threadedregions.TickRegions.TickRegionData, io.papermc.paper.threadedregions.TickRegions.TickRegionSectionData>
-                region = world.regioniser.getRegionAtUnsynchronised(x, z);
-        if (region == null) {
-            return null;
-        } else {
-            io.papermc.paper.threadedregions.TickRegions.TickRegionData regionData = region.getData();
-            final io.papermc.paper.threadedregions.TickRegionScheduler.RegionScheduleHandle regionScheduleHandle = regionData.getRegionSchedulingHandle();
-            final long currTime = System.nanoTime();
-            return new double[]{
-                    regionScheduleHandle.getTickReport5s(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport15s(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport1m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport5m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport15m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-            };
-        }
-    }
-
-    public static double @Nullable [] getAverageTickTimesHelper(Chunk chunk) {
-        final int x = chunk.getX();
-        final int z = chunk.getZ();
-        final ServerLevel world = ((CraftWorld) chunk.getWorld()).getHandle();
-        io.papermc.paper.threadedregions.ThreadedRegionizer.ThreadedRegion<io.papermc.paper.threadedregions.TickRegions.TickRegionData, io.papermc.paper.threadedregions.TickRegions.TickRegionSectionData>
-                region = world.regioniser.getRegionAtUnsynchronised(x, z);
-        if (region == null) {
-            return null;
-        } else {
-            io.papermc.paper.threadedregions.TickRegions.TickRegionData regionData = region.getData();
-            final io.papermc.paper.threadedregions.TickRegionScheduler.RegionScheduleHandle regionScheduleHandle = regionData.getRegionSchedulingHandle();
-            final long currTime = System.nanoTime();
-            return new double[]{
-                    regionScheduleHandle.getTickReport5s(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport15s(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport1m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport5m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-                    regionScheduleHandle.getTickReport15m(currTime).timePerTickData().segmentAll().average() / 1.0E6,
-            };
-        }
-    }
-
     @Override
     public WorldFeedback.FeedbackWorld createWorld(WorldCreator creator) {
         return createWorldInternal(creator, null, null);
@@ -423,26 +371,6 @@ public class WorldNMS extends fr.euphyllia.skyllia.api.utils.nms.WorldNMS {
         }
 
         chunk.markUnsaved();
-    }
-
-    @Override
-    public double @Nullable [] getTPS(Location location) {
-        return Bukkit.getRegionTPS(location);
-    }
-
-    @Override
-    public double @Nullable [] getTPS(Chunk chunk) {
-        return Bukkit.getRegionTPS(chunk);
-    }
-
-    @Override
-    public double @Nullable [] getAverageTickTimes(Location location) {
-        return getAverageTickTimesHelper(location);
-    }
-
-    @Override
-    public double @Nullable [] getAverageTickTimes(Chunk chunk) {
-        return getAverageTickTimesHelper(chunk);
     }
 
     @Override

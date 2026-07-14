@@ -28,13 +28,10 @@ public class SkylliaCommand implements SkylliaCommandInterface {
     }
 
     private void registerDefaultCommands() {
-        registry.registerSubCommand(new AccessSubCommand(), "access");
         registry.registerSubCommand(new BanListCommand(), "banlist", "banned");
         registry.registerSubCommand(new BanSubCommand(), "ban");
-        registry.registerSubCommand(new SetBiomeSubCommand(), "biome");
         registry.registerSubCommand(new CreateSubCommand(), "create");
         registry.registerSubCommand(new DeleteSubCommand(), "delete");
-        registry.registerSubCommand(new DelWarpSubCommand(), "delwarp");
         registry.registerSubCommand(new DemoteSubCommand(), "demote");
         registry.registerSubCommand(new ExpelSubCommand(), "expel");
         registry.registerSubCommand(new HomeSubCommand(), "home", "go", "tp");
@@ -45,17 +42,13 @@ public class SkylliaCommand implements SkylliaCommandInterface {
         registry.registerSubCommand(new PermissionSubCommand(), "permission");
         registry.registerSubCommand(new FlagSubCommand(), "flag", "gamerule");
         registry.registerSubCommand(new PromoteSubCommand(), "promote");
-        registry.registerSubCommand(new TPSSubCommand(), "tps", "lag", "mspt");
         registry.registerSubCommand(new TransferSubCommand(), "transfer");
-        registry.registerSubCommand(new TrustSubCommand(), "trust");
+        registry.registerSubCommand(new CoopSubCommand(), "coop");
         registry.registerSubCommand(new SetHomeSubCommand(), "sethome");
-        registry.registerSubCommand(new SetSpawnSubCommand(), "setspawn");
-        registry.registerSubCommand(new SetVisitSubCommand(), "setvisit");
-        registry.registerSubCommand(new SetWarpSubCommand(), "setwarp");
         registry.registerSubCommand(new UnbanSubCommand(), "unban");
-        registry.registerSubCommand(new UntrustSubCommand(), "untrust");
-        registry.registerSubCommand(new VisitSubCommand(), "visit");
-        registry.registerSubCommand(new WarpSubCommand(), "warp");
+        registry.registerSubCommand(new UncoopSubCommand(), "uncoop");
+        registry.registerSubCommand(new LockSubCommand(), "lock");
+        registry.registerSubCommand(new UnlockSubCommand(), "unlock");
 
         // extra
         registry.registerSubCommand(new SetNameCommand(plugin), "set_name", "setname");

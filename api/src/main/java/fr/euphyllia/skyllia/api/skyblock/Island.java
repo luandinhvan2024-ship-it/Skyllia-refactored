@@ -3,14 +3,12 @@ package fr.euphyllia.skyllia.api.skyblock;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.configuration.WorldConfig;
 import fr.euphyllia.skyllia.api.coordinate.RegionCoordinate;
-import fr.euphyllia.skyllia.api.event.SkyblockSpawnChangeEvent;
 import fr.euphyllia.skyllia.api.exceptions.MaxIslandSizeExceedException;
 import fr.euphyllia.skyllia.api.permissions.CompiledPermissions;
 import fr.euphyllia.skyllia.api.permissions.IslandFlags;
 import fr.euphyllia.skyllia.api.skyblock.enums.RemovalCause;
 import fr.euphyllia.skyllia.api.skyblock.model.HeightType;
 import fr.euphyllia.skyllia.api.skyblock.model.Position;
-import fr.euphyllia.skyllia.api.skyblock.model.WarpIsland;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.ApiStatus;
@@ -28,15 +26,6 @@ import java.util.UUID;
  */
 public abstract class Island {
 
-    /**
-     * The reserved warp name under which the island spawn point is stored.
-     * <p>
-     * This name is reserved by Skyllia: it cannot be set or deleted through the
-     * regular {@code /is setwarp} / {@code /is delwarp} commands, and is never
-     * listed as a public warp.
-     * </p>
-     */
-    public static final String SPAWN_WARP_NAME = "spawn";
     private static final Logger log = LoggerFactory.getLogger(Island.class);
 
     /**
@@ -106,69 +95,6 @@ public abstract class Island {
      * @throws MaxIslandSizeExceedException If the new size exceeds the maximum allowed.
      */
     public abstract boolean setSize(double rayon) throws MaxIslandSizeExceedException;
-
-    /**
-     * Gets a list of warps for the island.
-     *
-     * @return A list of {@link WarpIsland} objects, or {@code null} if none.
-     */
-    public abstract @Nullable List<WarpIsland> getWarps();
-
-    /**
-     * Gets a warp by its name.
-     *
-     * @param name The warp name.
-     * @return The {@link WarpIsland}, or {@code null} if not found.
-     */
-    public abstract @Nullable WarpIsland getWarpByName(String name);
-
-    /**
-     * Gets the visit warp of the island.
-     * <p>
-     * Returns the warp named {@code "visit"} if it has been explicitly set via
-     * {@code /is setvisit}, or falls back to the {@code "home"} warp if no visit
-     * point has been defined. Returns {@code null} if neither exists.
-     * </p>
-     *
-     * @return The visit {@link WarpIsland}, or {@code null} if none is set.
-     */
-    public @Nullable WarpIsland getVisit() {
-        WarpIsland visit = getWarpByName("visit");
-        if (visit != null) return visit;
-        return getWarpByName("home");
-    }
-
-    /**
-     * Sets the visit warp of the island to the given location.
-     * <p>
-     * This is a convenience method equivalent to calling
-     * {@code addWarps("visit", location, false)}.
-     * </p>
-     *
-     * @param location The {@link Location} to use as the visit point.
-     * @return {@code true} if successfully saved, {@code false} otherwise.
-     */
-    public boolean setVisit(Location location) {
-        return addWarps("visit", location, false);
-    }
-
-    /**
-     * Adds a warp to the island.
-     *
-     * @param name        The name of the warp.
-     * @param loc         The {@link Location} of the warp.
-     * @param ignoreEvent If {@code true}, the warp creation event is not called.
-     * @return {@code true} if successfully added, {@code false} otherwise.
-     */
-    public abstract boolean addWarps(String name, Location loc, boolean ignoreEvent);
-
-    /**
-     * Deletes a warp from the island.
-     *
-     * @param name The name of the warp to delete.
-     * @return {@code true} if successfully deleted, {@code false} otherwise.
-     */
-    public abstract boolean delWarp(String name);
 
     /**
      * Checks if the island is disabled.
@@ -389,29 +315,12 @@ public abstract class Island {
     public abstract void setCenterLocation(Location location);
 
     /**
-     * Returns the raw, stored custom spawn of this island, if any.
-     * <p>
-     * Returns {@code null} when no custom spawn has been set; in that case callers
-     * should fall back to {@link #getCenterLocation(World)} (see
-     * {@link #getSpawnLocation(World)}).
-     * </p>
-     *
-     * @return The custom spawn {@link WarpIsland}, or {@code null} if none is set.
-     */
-    public @Nullable WarpIsland getSpawn() {
-        return getWarpByName(SPAWN_WARP_NAME);
-    }
-
-    /**
      * Returns whether this island has an explicit, customized spawn point.
      *
      * @return {@code true} if a custom spawn has been set, {@code false} if the
      * island still uses the default (center-based) spawn.
      */
-    public boolean hasCustomSpawn() {
-        WarpIsland spawn = getSpawn();
-        return spawn != null && spawn.location() != null && spawn.location().getWorld() != null;
-    }
+    public abstract boolean hasCustomSpawn();
 
     /**
      * Resolves the spawn {@link Location} of this island for the given world.
@@ -432,39 +341,21 @@ public abstract class Island {
      * @param world The {@link World} for which to resolve the spawn.
      * @return The resolved spawn {@link Location} for the given world.
      */
-    public Location getSpawnLocation(World world) {
-        WarpIsland spawn = getSpawn();
-        if (spawn != null && spawn.location() != null) {
-            Location loc = spawn.location();
-            if (loc.getWorld() != null && loc.getWorld().equals(world)) {
-                return loc.clone();
-            }
-        }
-        return getCenterLocation(world);
-    }
+    public abstract Location getSpawnLocation(World world);
 
     /**
      * Sets a custom spawn point for this island.
      * <p>
-     * The spawn is persisted under the reserved {@link #SPAWN_WARP_NAME} warp and
-     * becomes the location used by {@code /is home}, respawn, and post-creation
-     * teleport. An {@link fr.euphyllia.skyllia.api.event.SkyblockSpawnChangeEvent}
-     * is fired beforehand, allowing other addons to adjust or veto the change.
+     * The spawn becomes the location used by {@code /is home}, respawn, and post-creation
+     * teleport.
      * </p>
      *
      * @param location The {@link Location} to use as the island spawn. The world
      *                 is inferred from {@link Location#getWorld()}.
      * @return {@code true} if the spawn was successfully saved, {@code false} if
-     * the change was cancelled or persistence failed.
+     * persistence failed.
      */
-    public boolean setSpawnLocation(Location location) {
-        SkyblockSpawnChangeEvent event = new SkyblockSpawnChangeEvent(this, location);
-        event.callEvent();
-        if (event.isCancelled()) {
-            return false;
-        }
-        return addWarps(SPAWN_WARP_NAME, event.getSpawnLocation(), true);
-    }
+    public abstract boolean setSpawnLocation(Location location);
 
     /**
      * Clears any custom spawn, reverting this island to the default
@@ -472,9 +363,7 @@ public abstract class Island {
      *
      * @return {@code true} if a custom spawn was removed, {@code false} otherwise.
      */
-    public boolean resetSpawn() {
-        return delWarp(SPAWN_WARP_NAME);
-    }
+    public abstract boolean resetSpawn();
 
     /**
      * Returns the custom minimum build height for this island in the given world,
