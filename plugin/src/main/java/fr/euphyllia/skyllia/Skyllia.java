@@ -41,6 +41,7 @@ public class Skyllia extends JavaPlugin {
     private InterneAPI interneAPI;
     private SubCommandRegistry commandRegistry;
     private BStatsMetrics bStatsMetrics;
+    private fr.euphyllia.skyllia.gui.PermissionGui permissionGui;
 
     public static Skyllia getInstance() {
         return instance;
@@ -140,6 +141,14 @@ public class Skyllia extends JavaPlugin {
 
     public @NotNull SubCommandRegistry getCommandRegistry() {
         return commandRegistry;
+    }
+
+    public void setPermissionGui(fr.euphyllia.skyllia.gui.PermissionGui gui) {
+        this.permissionGui = gui;
+    }
+
+    public fr.euphyllia.skyllia.gui.PermissionGui getPermissionGui() {
+        return permissionGui;
     }
 
     private boolean loadConfigurations() {

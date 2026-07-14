@@ -4,7 +4,6 @@ import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.SkylliaAPI;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
-import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -12,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -21,9 +21,17 @@ import org.jetbrains.annotations.NotNull;
 public class PermissionGuiListener implements Listener {
 
     private final Skyllia plugin;
+    private final PermissionGui permissionGui;
+    private final NamespacedKey navKey;
+    private final NamespacedKey roleKey;
+    private final NamespacedKey permKey;
 
-    public PermissionGuiListener(Skyllia plugin) {
+    public PermissionGuiListener(Skyllia plugin, PermissionGui permissionGui) {
         this.plugin = plugin;
+        this.permissionGui = permissionGui;
+        this.navKey = new NamespacedKey(SkylliaAPI.getPlugin(), "gui_nav");
+        this.roleKey = new NamespacedKey(SkylliaAPI.getPlugin(), "gui_role");
+        this.permKey = new NamespacedKey(SkylliaAPI.getPlugin(), "gui_perm");
     }
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -45,22 +53,14 @@ public class PermissionGuiListener implements Listener {
 
         var pdc = meta.getPersistentDataContainer();
 
-        // Check navigation buttons
-        String navAction = pdc.get(
-                new NamespacedKey(SkylliaAPI.getPlugin(), "gui_nav"),
-                PersistentDataType.STRING
-        );
+        String navAction = pdc.get(navKey, PersistentDataType.STRING);
         if (navAction != null) {
             handleNavigation(player, holder, navAction);
             return;
         }
 
-        // Check role selection
-        String roleStr = pdc.get(
-                new NamespacedKey(SkylliaAPI.getPlugin(), "gui_role"),
-                PersistentDataType.STRING
-        );
-        if (roleStr != null) {
+        String roleStr = pdc.get(roleKey, PersistentDataType.STRING);
+        if (roleStr != null && holder.getMode() == PermissionGuiHolder.GuiMode.ROLE_SELECT) {
             try {
                 RoleType role = RoleType.valueOf(roleStr);
                 Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
@@ -69,18 +69,14 @@ public class PermissionGuiListener implements Listener {
                     return;
                 }
                 Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                        PermissionGui.openPermissionList(player, island, role, 0));
+                        permissionGui.openPermissionList(player, island, role, 0));
             } catch (IllegalArgumentException ignored) {
             }
             return;
         }
 
-        // Check permission toggle
-        String permKey = pdc.get(
-                new NamespacedKey(SkylliaAPI.getPlugin(), "gui_perm"),
-                PersistentDataType.STRING
-        );
-        if (permKey != null && holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST) {
+        String permKeyStr = pdc.get(permKey, PersistentDataType.STRING);
+        if (permKeyStr != null && holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST) {
             Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
             if (island == null) {
                 player.closeInventory();
@@ -90,18 +86,24 @@ public class PermissionGuiListener implements Listener {
             RoleType role = holder.getSelectedRole();
             if (role == null) return;
 
-            NamespacedKey key = NamespacedKey.fromString(permKey);
+            NamespacedKey key = NamespacedKey.fromString(permKeyStr);
             if (key == null) return;
 
             Bukkit.getAsyncScheduler().runNow(plugin, t -> {
-                boolean success = PermissionGui.togglePermission(island, role, key);
+                boolean success = permissionGui.togglePermission(island, role, key);
                 if (success) {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t2 ->
-                            PermissionGui.openPermissionList(player, island, role, holder.getPage()));
-                } else {
-                    ConfigLoader.language.sendMessage(player, "island.permission.update.failed");
+                            permissionGui.openPermissionList(player, island, role, holder.getPage()));
                 }
             });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    public void onInventoryDrag(@NotNull InventoryDragEvent event) {
+        Inventory topInventory = event.getView().getTopInventory();
+        if (topInventory.getHolder() instanceof PermissionGuiHolder) {
+            event.setCancelled(true);
         }
     }
 
@@ -116,19 +118,19 @@ public class PermissionGuiListener implements Listener {
             case "nav:previous" -> {
                 if (holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST && holder.getSelectedRole() != null) {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                            PermissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() - 1));
+                            permissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() - 1));
                 }
             }
             case "nav:next" -> {
                 if (holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST && holder.getSelectedRole() != null) {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                            PermissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() + 1));
+                            permissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() + 1));
                 }
             }
             case "nav:back" -> {
                 if (holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST) {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                            PermissionGui.openRoleSelect(player, island));
+                            permissionGui.openRoleSelect(player, island));
                 }
             }
         }

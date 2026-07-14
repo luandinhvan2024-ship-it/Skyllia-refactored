@@ -230,8 +230,10 @@ public class LanguageConfigManager implements IConfigurationProvider, LanguagePr
                 ? langMessages.getOrDefault(key, "<red>Missing translation: " + key + "</red>")
                 : "<red>Missing translation: " + key + "</red>";
 
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            message = message.replace(entry.getKey(), entry.getValue());
+        Map<String, String> safePlaceholders = placeholders != null ? placeholders : Map.of();
+        for (Map.Entry<String, String> entry : safePlaceholders.entrySet()) {
+            String v = entry.getValue();
+            message = message.replace(entry.getKey(), v != null ? v : "");
         }
 
         return message;

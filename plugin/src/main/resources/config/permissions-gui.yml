@@ -1,0 +1,133 @@
+# Permission GUI Configuration
+# This file controls the entire look and feel of the /is permission GUI.
+# All materials, slots, names, lore, and titles can be customized here.
+
+# === Role Selection Screen ===
+role-select:
+  rows: 3
+  title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Select Role</bold></gradient>"
+
+  # Each role has its own item configuration
+  roles:
+    OWNER:
+      slot: 11
+      material: GOLDEN_HELMET
+      custom-model-data: -1
+      display-name: "<gold><bold>OWNER</bold></gold>"
+      lore:
+        - "<gray>The island owner."
+        - "<gray>Has full control over the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    CO_OWNER:
+      slot: 13
+      material: DIAMOND_HELMET
+      custom-model-data: -1
+      display-name: "<aqua><bold>CO_OWNER</bold></aqua>"
+      lore:
+        - "<gray>Trusted second-in-command."
+        - "<gray>Almost full control."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    MODERATOR:
+      slot: 15
+      material: IRON_HELMET
+      custom-model-data: -1
+      display-name: "<white><bold>MODERATOR</bold></white>"
+      lore:
+        - "<gray>Can moderate island members."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    MEMBER:
+      slot: 20
+      material: CHAINMAIL_HELMET
+      custom-model-data: -1
+      display-name: "<green><bold>MEMBER</bold></green>"
+      lore:
+        - "<gray>Regular island member."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    VISITOR:
+      slot: 22
+      material: LEATHER_HELMET
+      custom-model-data: -1
+      display-name: "<yellow><bold>VISITOR</bold></yellow>"
+      lore:
+        - "<gray>Players visiting the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    BAN:
+      slot: 24
+      material: BARRIER
+      custom-model-data: -1
+      display-name: "<red><bold>BAN</bold></red>"
+      lore:
+        - "<gray>Banned players."
+        - "<gray>Cannot interact with the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+# === Permission List Screen ===
+permission-list:
+  rows: 6
+  title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>%role% Permissions</bold></gradient> <gray>(Page %page%/%total%)</gray>"
+  page-size: 36
+
+  # Permission item - shows for each permission in the list
+  permission-item:
+    enabled:
+      material: LIME_DYE
+      custom-model-data: -1
+      display-name: "<white>%permission%"
+      lore:
+        - "<green>✓ Enabled"
+        - "<dark_gray>%description%"
+        - ""
+        - "<yellow>Click to disable"
+    disabled:
+      material: GRAY_DYE
+      custom-model-data: -1
+      display-name: "<white>%permission%"
+      lore:
+        - "<red>✗ Disabled"
+        - "<dark_gray>%description%"
+        - ""
+        - "<yellow>Click to enable"
+
+  # Navigation buttons
+  navigation:
+    previous:
+      slot: 45
+      material: ARROW
+      custom-model-data: -1
+      display-name: "<yellow>← Previous Page"
+      lore:
+        - "<gray>Go to the previous page"
+    next:
+      slot: 53
+      material: ARROW
+      custom-model-data: -1
+      display-name: "<yellow>Next Page →"
+      lore:
+        - "<gray>Go to the next page"
+    back:
+      slot: 49
+      material: BARRIER
+      custom-model-data: -1
+      display-name: "<red>Back to Role Selection"
+      lore:
+        - "<gray>Return to role selection screen"
+
+  # Role indicator (top center of permission list)
+  role-indicator:
+    slot: 4
+    material: PLAYER_HEAD
+    custom-model-data: -1
+    display-name: "<gold>Editing: <white>%role%"
+    lore:
+      - "<gray>Click a permission to toggle it"

@@ -8,6 +8,7 @@ import fr.euphyllia.skyllia.commands.admin.SkylliaAdminCommand;
 import fr.euphyllia.skyllia.commands.admin.SubAdminCommandImpl;
 import fr.euphyllia.skyllia.commands.common.subcommands.*;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
+import fr.euphyllia.skyllia.gui.PermissionGui;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
@@ -23,11 +24,14 @@ public class SkylliaCommand implements SkylliaCommandInterface {
     private final Skyllia plugin;
     private final SubCommandRegistry registry;
     private final SubCommandRegistry adminRegistry;
+    private final PermissionGui permissionGui;
 
     public SkylliaCommand(Skyllia Skyllia) {
         this.plugin = Skyllia;
         this.registry = this.plugin.getCommandRegistry();
         this.adminRegistry = new SubAdminCommandImpl();
+        this.permissionGui = new PermissionGui(plugin);
+        this.plugin.setPermissionGui(permissionGui);
         registerDefaultCommands();
     }
 
@@ -43,7 +47,7 @@ public class SkylliaCommand implements SkylliaCommandInterface {
         registry.registerSubCommand(new InviteSubCommand(), "invite", "add");
         registry.registerSubCommand(new KickSubCommand(), "kick");
         registry.registerSubCommand(new LeaveSubCommand(), "leave");
-        registry.registerSubCommand(new PermissionSubCommand(), "permission");
+        registry.registerSubCommand(new PermissionSubCommand(permissionGui), "permission");
         registry.registerSubCommand(new FlagSubCommand(), "flag", "gamerule");
         registry.registerSubCommand(new PromoteSubCommand(), "promote");
         registry.registerSubCommand(new TransferSubCommand(), "transfer");

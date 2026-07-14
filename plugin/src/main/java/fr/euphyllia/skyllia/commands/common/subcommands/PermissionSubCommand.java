@@ -28,9 +28,11 @@ public class PermissionSubCommand implements SubCommandInterface {
     private static final List<String> BOOLS = List.of("true", "false", "on", "off");
 
     private final Logger logger = LogManager.getLogger(PermissionSubCommand.class);
+    private final PermissionGui permissionGui;
     private final PermissionId PERMISSION_COMMAND_PERMISSION;
 
-    public PermissionSubCommand() {
+    public PermissionSubCommand(PermissionGui permissionGui) {
+        this.permissionGui = permissionGui;
         this.PERMISSION_COMMAND_PERMISSION = SkylliaAPI.getPermissionRegistry().register(new PermissionNode(
                 new NamespacedKey(SkylliaAPI.getPlugin(), "command.island.permission"),
                 "island.permission.command.permission.name",
@@ -97,17 +99,9 @@ public class PermissionSubCommand implements SubCommandInterface {
             return;
         }
 
-        // Default: open GUI
-        if (args.length == 0) {
+        if (args.length == 0 || args[0].equalsIgnoreCase("gui")) {
             Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
-                    PermissionGui.openRoleSelect(player, island));
-            return;
-        }
-
-        // Explicit GUI request
-        if (args[0].equalsIgnoreCase("gui")) {
-            Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
-                    PermissionGui.openRoleSelect(player, island));
+                    permissionGui.openRoleSelect(player, island));
             return;
         }
 
