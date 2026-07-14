@@ -40,7 +40,6 @@ public class Skyllia extends JavaPlugin {
             .create();
     private InterneAPI interneAPI;
     private SubCommandRegistry commandRegistry;
-    private SubCommandRegistry adminCommandRegistry;
     private BStatsMetrics bStatsMetrics;
 
     public static Skyllia getInstance() {
@@ -92,7 +91,6 @@ public class Skyllia extends JavaPlugin {
         commandRegistrar.registerCommands();
 
         this.commandRegistry = commandRegistrar.getCommandRegistry();
-        this.adminCommandRegistry = commandRegistrar.getAdminCommandRegistry();
 
         // Register listeners
         new ListenersRegistrar(this, interneAPI).registerListeners();
@@ -142,10 +140,6 @@ public class Skyllia extends JavaPlugin {
 
     public @NotNull SubCommandRegistry getCommandRegistry() {
         return commandRegistry;
-    }
-
-    public @NotNull SubCommandRegistry getAdminCommandRegistry() {
-        return adminCommandRegistry;
     }
 
     private boolean loadConfigurations() {

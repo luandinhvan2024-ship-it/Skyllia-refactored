@@ -4,6 +4,8 @@ import fr.euphyllia.skyllia.Skyllia;
 import fr.euphyllia.skyllia.api.commands.SkylliaCommandInterface;
 import fr.euphyllia.skyllia.api.commands.SubCommandInterface;
 import fr.euphyllia.skyllia.api.commands.SubCommandRegistry;
+import fr.euphyllia.skyllia.commands.admin.SkylliaAdminCommand;
+import fr.euphyllia.skyllia.commands.admin.SubAdminCommandImpl;
 import fr.euphyllia.skyllia.commands.common.subcommands.*;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -20,10 +22,12 @@ public class SkylliaCommand implements SkylliaCommandInterface {
 
     private final Skyllia plugin;
     private final SubCommandRegistry registry;
+    private final SubCommandRegistry adminRegistry;
 
     public SkylliaCommand(Skyllia Skyllia) {
         this.plugin = Skyllia;
         this.registry = this.plugin.getCommandRegistry();
+        this.adminRegistry = new SubAdminCommandImpl();
         registerDefaultCommands();
     }
 
@@ -49,6 +53,9 @@ public class SkylliaCommand implements SkylliaCommandInterface {
         registry.registerSubCommand(new UncoopSubCommand(), "uncoop");
         registry.registerSubCommand(new LockSubCommand(), "lock");
         registry.registerSubCommand(new UnlockSubCommand(), "unlock");
+
+        // Admin command (replaces /skylliadmin)
+        registry.registerSubCommand(new SkylliaAdminCommand(plugin, adminRegistry), "admin");
 
         // extra
         registry.registerSubCommand(new SetNameCommand(plugin), "set_name", "setname");

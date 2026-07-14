@@ -98,6 +98,10 @@ public final class PermissionRegistry {
         return new ArrayList<>(ids.keySet());
     }
 
+    public synchronized List<PermissionNode> nodes() {
+        return new ArrayList<>(byIndex);
+    }
+
     public synchronized Map<NamespacedKey, PermissionId> entries() {
         return Map.copyOf(ids);
     }

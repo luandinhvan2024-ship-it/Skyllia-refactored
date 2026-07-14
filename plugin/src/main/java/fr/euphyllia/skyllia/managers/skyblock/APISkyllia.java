@@ -109,7 +109,7 @@ public final class APISkyllia implements SkylliaImplementation {
     @Override
     public boolean registerAdminCommands(SubCommandInterface commandInterface, String... commands) {
         try {
-            this.interneAPI.getPlugin().getAdminCommandRegistry().registerSubCommand(commandInterface, commands);
+            this.interneAPI.getPlugin().getCommandRegistry().registerSubCommand(commandInterface, commands);
             return true;
         } catch (Exception exception) {
             log.error(exception.getMessage());

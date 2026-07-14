@@ -8,9 +8,11 @@ import fr.euphyllia.skyllia.api.permissions.*;
 import fr.euphyllia.skyllia.api.skyblock.Island;
 import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
 import fr.euphyllia.skyllia.configuration.ConfigLoader;
+import fr.euphyllia.skyllia.gui.PermissionGui;
 import fr.euphyllia.skyllia.utils.PlayerUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -22,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class PermissionSubCommand implements SubCommandInterface {
 
-    private static final List<String> ACTIONS = List.of("list", "get", "set", "toggle");
+    private static final List<String> ACTIONS = List.of("list", "get", "set", "toggle", "gui");
     private static final List<String> BOOLS = List.of("true", "false", "on", "off");
 
     private final Logger logger = LogManager.getLogger(PermissionSubCommand.class);
@@ -64,10 +66,6 @@ public class PermissionSubCommand implements SubCommandInterface {
         return key.getNamespace() + ":" + key.getKey();
     }
 
-    /**
-     * skyllia.island.permission.<namespace>:<key>
-     * ex: skyllia.island.permission.skyllia:island.member.break
-     */
     private static String permPermNode(NamespacedKey key) {
         return "skyllia.island.permission." + toKeyString(key);
     }
@@ -99,8 +97,17 @@ public class PermissionSubCommand implements SubCommandInterface {
             return;
         }
 
+        // Default: open GUI
         if (args.length == 0) {
-            ConfigLoader.language.sendMessage(player, "island.permission.usage");
+            Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
+                    PermissionGui.openRoleSelect(player, island));
+            return;
+        }
+
+        // Explicit GUI request
+        if (args[0].equalsIgnoreCase("gui")) {
+            Bukkit.getRegionScheduler().run(plugin, player.getLocation(), scheduledTask ->
+                    PermissionGui.openRoleSelect(player, island));
             return;
         }
 
@@ -137,15 +144,7 @@ public class PermissionSubCommand implements SubCommandInterface {
             return;
         }
 
-        // Mode actionnel OU forme courte:
-        // actionnel:
-        //   /is permission get <role> <perm>
-        //   /is permission set <role> <perm> <bool>
-        //   /is permission toggle <role> <perm>
-        //
-        // forme courte:
-        //   /is permission <role> <perm> [bool]
-        int offset = 0;
+        int offset;
         String action;
 
         if (isAction(args[0])) {
@@ -153,6 +152,7 @@ public class PermissionSubCommand implements SubCommandInterface {
             offset = 1;
         } else {
             action = "auto";
+            offset = 0;
         }
 
         if (args.length - offset < 2) {

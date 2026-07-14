@@ -34,6 +34,7 @@ import fr.euphyllia.skyllia.listeners.permissions.player.ItemPickupPermissions;
 import fr.euphyllia.skyllia.listeners.permissions.player.TeleportPermissions;
 import fr.euphyllia.skyllia.listeners.skyblockevents.PortalTeleportListener;
 import fr.euphyllia.skyllia.listeners.skyblockevents.SkyblockEvent;
+import fr.euphyllia.skyllia.gui.PermissionGuiListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.event.Listener;
@@ -83,6 +84,9 @@ public class ListenersRegistrar {
         registerEvent(pluginManager, new SkyblockEvent(interneAPI));
         registerEvent(pluginManager, new PortalTeleportListener());
         registerEvent(pluginManager, new IslandInfoExtraListener());
+
+        // GUI Listeners
+        registerEvent(pluginManager, new PermissionGuiListener(plugin));
 
         // Permissions Listeners
         var moduleManager = SkylliaAPI.getPermissionModuleManager();
