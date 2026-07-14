@@ -9,15 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Listener for Permission GUI interactions.
- * Contains NO permission logic. Only:
- *   1. Cancels all inventory interactions (prevents item theft)
- *   2. Delegates valid clicks to PermissionGui.handleClick()
- *
- * Architecture:
- *   Click → Listener (cancel + delegate) → PermissionGui (view) → PermissionService (logic) → DB
- */
 public final class PermissionGuiListener implements Listener {
 
     private final PermissionGui permissionGui;
@@ -41,8 +32,7 @@ public final class PermissionGuiListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null || clickedItem.getType().isAir()) return;
 
-        boolean leftClick = event.getClick().isLeftClick();
-        permissionGui.handleClick(player, holder, clickedItem, leftClick);
+        permissionGui.handleClick(player, holder, clickedItem);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

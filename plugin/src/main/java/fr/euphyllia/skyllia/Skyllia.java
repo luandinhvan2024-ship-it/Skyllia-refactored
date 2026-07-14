@@ -89,6 +89,8 @@ public class Skyllia extends JavaPlugin {
 
         fr.euphyllia.skyllia.permissions.PermissionService.init(this);
 
+        this.permissionGui = new fr.euphyllia.skyllia.gui.PermissionGui(this);
+
         // Register commands via CommandRegistrar
         CommandRegistrar commandRegistrar = new CommandRegistrar(this);
         commandRegistrar.registerCommands();

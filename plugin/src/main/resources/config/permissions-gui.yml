@@ -1,282 +1,644 @@
 # Permission GUI Configuration
-# Modeled after SuperiorSkyblock2's permissions.yml
+# Inspired by SuperiorSkyblock2 design: friendly names, config-driven, no internal IDs shown.
 #
-# Each permission has:
-#   - display-name: human-readable name (NOT internal ID)
-#   - material: icon material
-#   - custom-model-data: -1 for none
-#   - description: what this permission does
-#   - category: which category screen it belongs to
+# Categories:
+#   physical    - block/entity/inventory/item interactions
+#   management  - island commands and admin actions
 
-# === GUI Titles ===
-titles:
-  main: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Permission Categories</bold></gradient>"
-  category: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>%category%</bold></gradient> <gray>(%role%)</gray>"
-  role-select: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Select Role</bold></gradient>"
-
-# === Role Display ===
-roles:
-  OWNER:
-    display-name: "<gold><bold>Owner</bold></gold>"
-    material: GOLDEN_HELMET
-    description: "Full control over the island"
-  CO_OWNER:
-    display-name: "<aqua><bold>Co-Owner</bold></aqua>"
-    material: DIAMOND_HELMET
-    description: "Trusted second-in-command"
-  MODERATOR:
-    display-name: "<white><bold>Moderator</bold></white>"
-    material: IRON_HELMET
-    description: "Can moderate island members"
-  MEMBER:
-    display-name: "<green><bold>Member</bold></green>"
-    material: CHAINMAIL_HELMET
-    description: "Regular island member"
-  VISITOR:
-    display-name: "<yellow><bold>Visitor</bold></yellow>"
-    material: LEATHER_HELMET
-    description: "Players visiting the island"
-  BAN:
-    display-name: "<red><bold>Banned</bold></red>"
-    material: BARRIER
-    description: "Banned players - no access"
-
-# === Categories (main screen) ===
+# === Category Selection Screen ===
 categories:
-  physical:
-    slot: 11
-    material: GRASS_BLOCK
-    custom-model-data: -1
-    display-name: "<green><bold>Physical Permissions</bold></green>"
-    description: "Block breaking, placing, interaction"
-    permissions:
-      - skyllia:block.break
-      - skyllia:block.place
-      - skyllia:block.interact
-      - skyllia:block.physical
-      - skyllia:block.use.bucket
-      - skyllia:item.drop
-      - skyllia:item.pickup
-      - skyllia:player.teleport
+  rows: 3
+  title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Permission Categories</bold></gradient>"
 
-  entities:
-    slot: 13
-    material: EGG
-    custom-model-data: -1
-    display-name: "<yellow><bold>Entity Permissions</bold></bold></yellow>"
-    description: "Animals, monsters, decor"
-    permissions:
-      - skyllia:entity.damage
-      - skyllia:entity.breed
-      - skyllia:entity.interact
-      - skyllia:decor.hanging.break
-      - skyllia:decor.hanging.place
+  background:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
 
-  inventory:
-    slot: 15
-    material: CHEST
-    custom-model-data: -1
-    display-name: "<aqua><bold>Inventory Permissions</bold></aqua>"
-    description: "Chest access, inventory modify"
-    permissions:
-      - skyllia:inventory.modify
-      - skyllia:inventory.open
-
-  management:
-    slot: 20
-    material: BOOK
-    custom-model-data: -1
-    display-name: "<gold><bold>Management Permissions</bold></gold>"
-    description: "Island commands and admin"
-    permissions:
-      - skyllia:command.island.ban
-      - skyllia:command.island.unban
-      - skyllia:command.island.kick
-      - skyllia:command.island.expel
-      - skyllia:command.island.demote
-      - skyllia:command.island.promote
-      - skyllia:command.island.invite
-      - skyllia:command.island.permission
-      - skyllia:command.island.gamerule
-      - skyllia:command.island.lock
-      - skyllia:command.island.unlock
-      - skyllia:command.island.manage_coop
-      - skyllia:command.island.set_home
-
-# === Permission Display Info ===
-# Maps each internal permission key to human-readable info
-permissions:
-  "skyllia:block.break":
-    display-name: "<white>Break Blocks"
-    material: IRON_PICKAXE
-    description: "Allows breaking blocks on the island"
-  "skyllia:block.place":
-    display-name: "<white>Place Blocks"
-    material: BRICKS
-    description: "Allows placing blocks on the island"
-  "skyllia:block.interact":
-    display-name: "<white>Interact with Blocks"
-    material: LEVER
-    description: "Allows interacting with blocks (buttons, levers, etc.)"
-  "skyllia:block.physical":
-    display-name: "<white>Physical Interaction"
-    material: STONE_PRESSURE_PLATE
-    description: "Allows physical interaction (pressure plates, trampling)"
-  "skyllia:block.use.bucket":
-    display-name: "<white>Use Buckets"
-    material: BUCKET
-    description: "Allows using buckets (water, lava, etc.)"
-  "skyllia:item.drop":
-    display-name: "<white>Drop Items"
-    material: ARROW
-    description: "Allows dropping items on the ground"
-  "skyllia:item.pickup":
-    display-name: "<white>Pickup Items"
-    material: HOPPER
-    description: "Allows picking up items from the ground"
-  "skyllia:player.teleport":
-    display-name: "<white>Teleport"
-    material: ENDER_PEARL
-    description: "Allows teleporting on the island"
-  "skyllia:entity.damage":
-    display-name: "<white>Damage Entities"
-    material: DIAMOND_SWORD
-    description: "Allows damaging entities (animals, mobs)"
-  "skyllia:entity.breed":
-    display-name: "<white>Breed Animals"
-    material: WHEAT
-    description: "Allows breeding animals"
-  "skyllia:entity.interact":
-    display-name: "<white>Interact with Entities"
-    material: SADDLE
-    description: "Allows interacting with entities (riding, trading)"
-  "skyllia:decor.hanging.break":
-    display-name: "<white>Break Hanging Items"
-    material: ITEM_FRAME
-    description: "Allows breaking item frames and paintings"
-  "skyllia:decor.hanging.place":
-    display-name: "<white>Place Hanging Items"
-    material: PAINTING
-    description: "Allows placing item frames and paintings"
-  "skyllia:inventory.modify":
-    display-name: "<white>Modify Inventory"
-    material: CRAFTING_TABLE
-    description: "Allows modifying inventory contents (click, drag)"
-  "skyllia:inventory.open":
-    display-name: "<white>Open Inventory"
-    material: CHEST_MINECART
-    description: "Allows opening inventories (chests, furnaces, etc.)"
-  "skyllia:command.island.ban":
-    display-name: "<white>Ban Players"
-    material: TIPPED_ARROW
-    description: "Allows banning players from the island"
-  "skyllia:command.island.unban":
-    display-name: "<white>Unban Players"
-    material: SPLASH_POTION
-    description: "Allows unbanning players from the island"
-  "skyllia:command.island.kick":
-    display-name: "<white>Kick Members"
-    material: LEATHER_BOOTS
-    description: "Allows kicking members from the island"
-  "skyllia:command.island.expel":
-    display-name: "<white>Expel Visitors"
+  close:
+    slot: 26
     material: BARRIER
-    description: "Allows expelling visitors from the island"
-  "skyllia:command.island.demote":
-    display-name: "<white>Demote Members"
-    material: REDSTONE
-    description: "Allows demoting island members"
-  "skyllia:command.island.promote":
-    display-name: "<white>Promote Members"
-    material: GOLD_INGOT
-    description: "Allows promoting island members"
-  "skyllia:command.island.invite":
-    display-name: "<white>Invite Members"
-    material: WRITABLE_BOOK
-    description: "Allows inviting new members"
-  "skyllia:command.island.permission":
-    display-name: "<white>Manage Permissions"
-    material: BOOK
-    description: "Allows managing island permissions"
-  "skyllia:command.island.gamerule":
-    display-name: "<white>Manage Flags"
-    material: COMMAND_BLOCK
-    description: "Allows managing island flags (gamerules)"
-  "skyllia:command.island.lock":
-    display-name: "<white>Lock Island"
-    material: IRON_DOOR
-    description: "Allows locking the island (private)"
-  "skyllia:command.island.unlock":
-    display-name: "<white>Unlock Island"
-    material: OAK_DOOR
-    description: "Allows unlocking the island (public)"
-  "skyllia:command.island.manage_coop":
-    display-name: "<white>Manage Coop"
-    material: NAME_TAG
-    description: "Allows managing coop players"
-  "skyllia:command.island.set_home":
-    display-name: "<white>Set Home"
-    material: RED_BED
-    description: "Allows setting the island home location"
+    display-name: "<red><bold>Close</bold></red>"
+    lore:
+      - "<gray>Click to close"
 
-# === Item Templates ===
-# Like SS2's permission-enabled / permission-disabled
-templates:
-  permission-enabled:
-    material: LIME_DYE
-    custom-model-data: -1
-    name: "<white>%name%"
-    lore:
-      - "<green>✓ Enabled"
-      - "<gray>%description%"
-      - ""
-      - "<yellow>Left-click to disable"
-      - "<yellow>Right-click to manage roles"
-  permission-disabled:
-    material: GRAY_DYE
-    custom-model-data: -1
-    name: "<white>%name%"
-    lore:
-      - "<red>✗ Disabled"
-      - "<gray>%description%"
-      - ""
-      - "<yellow>Left-click to enable"
-      - "<yellow>Right-click to manage roles"
-  role-indicator:
-    material: PLAYER_HEAD
-    custom-model-data: -1
-    name: "<gold>Editing role: <white>%role%"
-    lore:
-      - "<gray>Click a permission to toggle it"
+  items:
+    physical:
+      slot: 11
+      material: DIAMOND_PICKAXE
+      display-name: "<gold><bold>Physical Permissions</bold></gold>"
+      lore:
+        - "<gray>Block, entity, inventory and item interactions."
+        - "<gray>Examples: break, place, open, drop, pickup..."
+        - ""
+        - "<yellow>Click to manage"
 
-# === Navigation ===
-navigation:
+    management:
+      slot: 15
+      material: BOOK
+      display-name: "<aqua><bold>Management Permissions</bold></aqua>"
+      lore:
+        - "<gray>Island commands and administrative actions."
+        - "<gray>Examples: ban, kick, invite, lock, coop..."
+        - ""
+        - "<yellow>Click to manage"
+
+# === Role Selection Screen ===
+roles:
+  rows: 3
+  title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Select Role</bold></gradient> <gray>(%category%)</gray>"
+
+  background:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+
+  back:
+    slot: 18
+    material: ARROW
+    display-name: "<yellow>← Back to Categories"
+    lore:
+      - "<gray>Return to category selection"
+
+  close:
+    slot: 26
+    material: BARRIER
+    display-name: "<red><bold>Close</bold></red>"
+    lore:
+      - "<gray>Click to close"
+
+  items:
+    OWNER:
+      slot: 11
+      material: GOLDEN_HELMET
+      display-name: "<gold><bold>Owner</bold></gold>"
+      lore:
+        - "<gray>The island owner."
+        - "<gray>Has full control over the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    CO_OWNER:
+      slot: 13
+      material: DIAMOND_HELMET
+      display-name: "<aqua><bold>Co-Owner</bold></aqua>"
+      lore:
+        - "<gray>Trusted second-in-command."
+        - "<gray>Almost full control."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    MODERATOR:
+      slot: 15
+      material: IRON_HELMET
+      display-name: "<white><bold>Moderator</bold></white>"
+      lore:
+        - "<gray>Can moderate island members."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    MEMBER:
+      slot: 20
+      material: CHAINMAIL_HELMET
+      display-name: "<green><bold>Member</bold></green>"
+      lore:
+        - "<gray>Regular island member."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    VISITOR:
+      slot: 22
+      material: LEATHER_HELMET
+      display-name: "<yellow><bold>Visitor</bold></yellow>"
+      lore:
+        - "<gray>Players visiting the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+    BAN:
+      slot: 24
+      material: BARRIER
+      display-name: "<red><bold>Banned</bold></red>"
+      lore:
+        - "<gray>Banned players."
+        - "<gray>Cannot interact with the island."
+        - ""
+        - "<yellow>Click to manage permissions"
+
+# === Permission List Screen ===
+permission-list:
+  rows: 6
+  title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>%category% > %role%</bold></gradient> <gray>(Page %page%/%total%)</gray>"
+  page-size: 36
+
+  background:
+    material: GRAY_STAINED_GLASS_PANE
+    display-name: " "
+
   previous-page:
     slot: 45
     material: ARROW
-    name: "<yellow>← Previous Page"
+    display-name: "<yellow>← Previous Page"
     lore:
-      - "<gray>Go to previous page"
+      - "<gray>Go to the previous page"
+
   next-page:
     slot: 53
     material: ARROW
-    name: "<yellow>Next Page →"
+    display-name: "<yellow>Next Page →"
     lore:
-      - "<gray>Go to next page"
+      - "<gray>Go to the next page"
+
   back:
     slot: 48
-    material: BARRIER
-    name: "<red>Back"
+    material: ARROW
+    display-name: "<yellow>← Back to Role Selection"
     lore:
-      - "<gray>Return to previous screen"
+      - "<gray>Return to role selection"
+
   close:
     slot: 50
     material: BARRIER
-    name: "<red><bold>Close</bold></red>"
+    display-name: "<red><bold>Close</bold></red>"
     lore:
-      - "<gray>Close the GUI"
+      - "<gray>Click to close"
 
-# === Background ===
-background:
-  material: GRAY_STAINED_GLASS_PANE
-  name: " "
+  # Permission items - friendly names, NOT internal IDs
+  # Each permission has: enabled item, disabled item
+  # The key MUST match the NamespacedKey (namespace:key) of the registered permission
+  permissions:
+    # === Physical Permissions ===
+    "skyllia:block.break":
+      category: physical
+      enabled:
+        material: DIAMOND_PICKAXE
+        display-name: "<gold>Break Blocks"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to break blocks."
+          - "<yellow>Click to disable"
+      disabled:
+        material: DIAMOND_PICKAXE
+        display-name: "<gold>Break Blocks"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to break blocks."
+          - "<yellow>Click to enable"
+
+    "skyllia:block.place":
+      category: physical
+      enabled:
+        material: BRICKS
+        display-name: "<gold>Place Blocks"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to place blocks."
+          - "<yellow>Click to disable"
+      disabled:
+        material: BRICKS
+        display-name: "<gold>Place Blocks"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to place blocks."
+          - "<yellow>Click to enable"
+
+    "skyllia:block.interact":
+      category: physical
+      enabled:
+        material: LEVER
+        display-name: "<gold>Interact with Blocks"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to interact with blocks."
+          - "<yellow>Click to disable"
+      disabled:
+        material: LEVER
+        display-name: "<gold>Interact with Blocks"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to interact with blocks."
+          - "<yellow>Click to enable"
+
+    "skyllia:block.physical":
+      category: physical
+      enabled:
+        material: STONE_PRESSURE_PLATE
+        display-name: "<gold>Physical Interactions"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Pressure plates, trampling farmland, etc."
+          - "<yellow>Click to disable"
+      disabled:
+        material: STONE_PRESSURE_PLATE
+        display-name: "<gold>Physical Interactions"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Pressure plates, trampling farmland, etc."
+          - "<yellow>Click to enable"
+
+    "skyllia:block.use.bucket":
+      category: physical
+      enabled:
+        material: BUCKET
+        display-name: "<gold>Use Buckets"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to use buckets."
+          - "<yellow>Click to disable"
+      disabled:
+        material: BUCKET
+        display-name: "<gold>Use Buckets"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to use buckets."
+          - "<yellow>Click to enable"
+
+    "skyllia:decor.hanging.break":
+      category: physical
+      enabled:
+        material: ITEM_FRAME
+        display-name: "<gold>Break Hanging Items"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Item frames, paintings."
+          - "<yellow>Click to disable"
+      disabled:
+        material: ITEM_FRAME
+        display-name: "<gold>Break Hanging Items"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Item frames, paintings."
+          - "<yellow>Click to enable"
+
+    "skyllia:decor.hanging.place":
+      category: physical
+      enabled:
+        material: PAINTING
+        display-name: "<gold>Place Hanging Items"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Item frames, paintings."
+          - "<yellow>Click to disable"
+      disabled:
+        material: PAINTING
+        display-name: "<gold>Place Hanging Items"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Item frames, paintings."
+          - "<yellow>Click to enable"
+
+    "skyllia:entity.breed":
+      category: physical
+      enabled:
+        material: WHEAT
+        display-name: "<gold>Breed Animals"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to breed animals."
+          - "<yellow>Click to disable"
+      disabled:
+        material: WHEAT
+        display-name: "<gold>Breed Animals"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to breed animals."
+          - "<yellow>Click to enable"
+
+    "skyllia:entity.damage":
+      category: physical
+      enabled:
+        material: IRON_SWORD
+        display-name: "<gold>Damage Entities"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to damage entities."
+          - "<yellow>Click to disable"
+      disabled:
+        material: IRON_SWORD
+        display-name: "<gold>Damage Entities"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to damage entities."
+          - "<yellow>Click to enable"
+
+    "skyllia:entity.interact":
+      category: physical
+      enabled:
+        material: SADDLE
+        display-name: "<gold>Interact with Entities"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to interact with entities."
+          - "<yellow>Click to disable"
+      disabled:
+        material: SADDLE
+        display-name: "<gold>Interact with Entities"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to interact with entities."
+          - "<yellow>Click to enable"
+
+    "skyllia:inventory.modify":
+      category: physical
+      enabled:
+        material: CHEST
+        display-name: "<gold>Modify Inventories"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to modify inventory contents."
+          - "<yellow>Click to disable"
+      disabled:
+        material: CHEST
+        display-name: "<gold>Modify Inventories"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to modify inventory contents."
+          - "<yellow>Click to enable"
+
+    "skyllia:inventory.open":
+      category: physical
+      enabled:
+        material: CHEST_MINECART
+        display-name: "<gold>Open Inventories"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to open inventories."
+          - "<yellow>Click to disable"
+      disabled:
+        material: CHEST_MINECART
+        display-name: "<gold>Open Inventories"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to open inventories."
+          - "<yellow>Click to enable"
+
+    "skyllia:item.drop":
+      category: physical
+      enabled:
+        material: STICK
+        display-name: "<gold>Drop Items"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to drop items."
+          - "<yellow>Click to disable"
+      disabled:
+        material: STICK
+        display-name: "<gold>Drop Items"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to drop items."
+          - "<yellow>Click to enable"
+
+    "skyllia:item.pickup":
+      category: physical
+      enabled:
+        material: HOPPER
+        display-name: "<gold>Pickup Items"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to pickup items."
+          - "<yellow>Click to disable"
+      disabled:
+        material: HOPPER
+        display-name: "<gold>Pickup Items"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to pickup items."
+          - "<yellow>Click to enable"
+
+    "skyllia:player.teleport":
+      category: physical
+      enabled:
+        material: ENDER_PEARL
+        display-name: "<gold>Teleport"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to teleport."
+          - "<yellow>Click to disable"
+      disabled:
+        material: ENDER_PEARL
+        display-name: "<gold>Teleport"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to teleport."
+          - "<yellow>Click to enable"
+
+    # === Management Permissions ===
+    "skyllia:command.island.ban":
+      category: management
+      enabled:
+        material: IRON_BARS
+        display-name: "<red>Ban Players"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to ban players from the island."
+          - "<yellow>Click to disable"
+      disabled:
+        material: IRON_BARS
+        display-name: "<red>Ban Players"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to ban players from the island."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.demote":
+      category: management
+      enabled:
+        material: REDSTONE_TORCH
+        display-name: "<red>Demote Members"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to demote island members."
+          - "<yellow>Click to disable"
+      disabled:
+        material: REDSTONE_TORCH
+        display-name: "<red>Demote Members"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to demote island members."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.expel":
+      category: management
+      enabled:
+        material: FISHING_ROD
+        display-name: "<red>Expel Visitors"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to expel visitors from the island."
+          - "<yellow>Click to disable"
+      disabled:
+        material: FISHING_ROD
+        display-name: "<red>Expel Visitors"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to expel visitors from the island."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.gamerule":
+      category: management
+      enabled:
+        material: COMMAND_BLOCK
+        display-name: "<gold>Manage Flags"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to change island flags (gamerules)."
+          - "<yellow>Click to disable"
+      disabled:
+        material: COMMAND_BLOCK
+        display-name: "<gold>Manage Flags"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to change island flags (gamerules)."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.invite":
+      category: management
+      enabled:
+        material: PAPER
+        display-name: "<gold>Invite Players"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to invite players to the island."
+          - "<yellow>Click to disable"
+      disabled:
+        material: PAPER
+        display-name: "<gold>Invite Players"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to invite players to the island."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.kick":
+      category: management
+      enabled:
+        material: IRON_BOOTS
+        display-name: "<red>Kick Members"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to kick island members."
+          - "<yellow>Click to disable"
+      disabled:
+        material: IRON_BOOTS
+        display-name: "<red>Kick Members"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to kick island members."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.lock":
+      category: management
+      enabled:
+        material: IRON_DOOR
+        display-name: "<gold>Lock Island"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to lock the island (private = true)."
+          - "<yellow>Click to disable"
+      disabled:
+        material: IRON_DOOR
+        display-name: "<gold>Lock Island"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to lock the island (private = true)."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.unlock":
+      category: management
+      enabled:
+        material: OAK_DOOR
+        display-name: "<gold>Unlock Island"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to unlock the island (private = false)."
+          - "<yellow>Click to disable"
+      disabled:
+        material: OAK_DOOR
+        display-name: "<gold>Unlock Island"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to unlock the island (private = false)."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.manage_coop":
+      category: management
+      enabled:
+        material: NAME_TAG
+        display-name: "<gold>Manage Coop"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to manage coop players."
+          - "<yellow>Click to disable"
+      disabled:
+        material: NAME_TAG
+        display-name: "<gold>Manage Coop"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to manage coop players."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.permission":
+      category: management
+      enabled:
+        material: WRITABLE_BOOK
+        display-name: "<gold>Manage Permissions"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to manage island permissions."
+          - "<yellow>Click to disable"
+      disabled:
+        material: WRITABLE_BOOK
+        display-name: "<gold>Manage Permissions"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to manage island permissions."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.promote":
+      category: management
+      enabled:
+        material: GOLDEN_APPLE
+        display-name: "<gold>Promote Members"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to promote island members."
+          - "<yellow>Click to disable"
+      disabled:
+        material: GOLDEN_APPLE
+        display-name: "<gold>Promote Members"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to promote island members."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.set_home":
+      category: management
+      enabled:
+        material: RED_BED
+        display-name: "<gold>Set Home"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to set the island home/spawn."
+          - "<yellow>Click to disable"
+      disabled:
+        material: RED_BED
+        display-name: "<gold>Set Home"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to set the island home/spawn."
+          - "<yellow>Click to enable"
+
+    "skyllia:command.island.unban":
+      category: management
+      enabled:
+        material: GUNPOWDER
+        display-name: "<gold>Unban Players"
+        lore:
+          - "<green>✓ Enabled"
+          - "<gray>Allow this role to unban players from the island."
+          - "<yellow>Click to disable"
+      disabled:
+        material: GUNPOWDER
+        display-name: "<gold>Unban Players"
+        lore:
+          - "<red>✗ Disabled"
+          - "<gray>Allow this role to unban players from the island."
+          - "<yellow>Click to enable"

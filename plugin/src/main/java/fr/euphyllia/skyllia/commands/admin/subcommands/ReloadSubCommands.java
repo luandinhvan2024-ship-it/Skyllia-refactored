@@ -21,7 +21,7 @@ public class ReloadSubCommands implements SubCommandInterface {
         ConfigLoader.islandFlags.compileNow();
         Skyllia skyllia = Skyllia.getInstance();
         if (skyllia.getPermissionGui() != null) {
-            skyllia.getPermissionGui().loadConfig();
+            skyllia.getPermissionGui().reloadConfig();
         }
         ConfigLoader.language.sendMessage(sender, "island.admin.reload");
     }
