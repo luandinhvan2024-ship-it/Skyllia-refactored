@@ -7,6 +7,22 @@ role-select:
   rows: 3
   title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>Select Role</bold></gradient>"
 
+  # Background fill item (fills empty slots)
+  background:
+    material: GRAY_STAINED_GLASS_PANE
+    custom-model-data: -1
+    display-name: " "
+    lore: []
+
+  # Close button
+  close:
+    slot: 26
+    material: BARRIER
+    custom-model-data: -1
+    display-name: "<red><bold>Close</bold></red>"
+    lore:
+      - "<gray>Click to close the GUI"
+
   # Each role has its own item configuration
   roles:
     OWNER:
@@ -78,6 +94,13 @@ permission-list:
   title: "<dark_gray>» <gradient:#4FC3F7:#0288D1><bold>%role% Permissions</bold></gradient> <gray>(Page %page%/%total%)</gray>"
   page-size: 36
 
+  # Background fill item (fills empty slots in nav area)
+  background:
+    material: GRAY_STAINED_GLASS_PANE
+    custom-model-data: -1
+    display-name: " "
+    lore: []
+
   # Permission item - shows for each permission in the list
   permission-item:
     enabled:
@@ -116,12 +139,19 @@ permission-list:
       lore:
         - "<gray>Go to the next page"
     back:
-      slot: 49
+      slot: 48
       material: BARRIER
       custom-model-data: -1
       display-name: "<red>Back to Role Selection"
       lore:
         - "<gray>Return to role selection screen"
+    close:
+      slot: 50
+      material: BARRIER
+      custom-model-data: -1
+      display-name: "<red><bold>Close</bold></red>"
+      lore:
+        - "<gray>Click to close the GUI"
 
   # Role indicator (top center of permission list)
   role-indicator:

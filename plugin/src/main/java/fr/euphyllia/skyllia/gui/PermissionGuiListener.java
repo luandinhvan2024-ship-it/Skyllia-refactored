@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
@@ -34,28 +35,34 @@ public class PermissionGuiListener implements Listener {
         this.permKey = new NamespacedKey(SkylliaAPI.getPlugin(), "gui_perm");
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClick(@NotNull InventoryClickEvent event) {
-        Inventory topInventory = event.getView().getTopInventory();
-        if (!(topInventory.getHolder() instanceof PermissionGuiHolder holder)) return;
+        Inventory topInventory = event.getInventory();
+        if (!(topInventory.getHolder() instanceof PermissionGuiHolder)) return;
 
         event.setCancelled(true);
 
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (event.getClickedInventory() == null) return;
-        if (!event.getClickedInventory().equals(topInventory)) return;
 
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked == null || clicked.getType().isAir()) return;
+        Inventory clicked = event.getClickedInventory();
+        if (clicked == null || !clicked.equals(topInventory)) return;
 
-        ItemMeta meta = clicked.getItemMeta();
+        InventoryAction action = event.getAction();
+        if (action == InventoryAction.NOTHING) return;
+
+        ItemStack clickedItem = event.getCurrentItem();
+        if (clickedItem == null || clickedItem.getType().isAir()) return;
+
+        ItemMeta meta = clickedItem.getItemMeta();
         if (meta == null) return;
 
         var pdc = meta.getPersistentDataContainer();
 
+        if (!(topInventory.getHolder() instanceof PermissionGuiHolder holder)) return;
+
         String navAction = pdc.get(navKey, PersistentDataType.STRING);
         if (navAction != null) {
-            handleNavigation(player, holder, navAction);
+            handleClick(player, holder, navAction);
             return;
         }
 
@@ -68,8 +75,9 @@ public class PermissionGuiListener implements Listener {
                     player.closeInventory();
                     return;
                 }
+                final RoleType finalRole = role;
                 Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                        permissionGui.openPermissionList(player, island, role, 0));
+                        permissionGui.openPermissionList(player, island, finalRole, 0));
             } catch (IllegalArgumentException ignored) {
             }
             return;
@@ -89,25 +97,26 @@ public class PermissionGuiListener implements Listener {
             NamespacedKey key = NamespacedKey.fromString(permKeyStr);
             if (key == null) return;
 
+            final int currentPage = holder.getPage();
             Bukkit.getAsyncScheduler().runNow(plugin, t -> {
                 boolean success = permissionGui.togglePermission(island, role, key);
                 if (success) {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t2 ->
-                            permissionGui.openPermissionList(player, island, role, holder.getPage()));
+                            permissionGui.openPermissionList(player, island, role, currentPage));
                 }
             });
         }
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryDrag(@NotNull InventoryDragEvent event) {
-        Inventory topInventory = event.getView().getTopInventory();
+        Inventory topInventory = event.getInventory();
         if (topInventory.getHolder() instanceof PermissionGuiHolder) {
             event.setCancelled(true);
         }
     }
 
-    private void handleNavigation(Player player, PermissionGuiHolder holder, String action) {
+    private void handleClick(Player player, PermissionGuiHolder holder, String action) {
         Island island = SkylliaAPI.getIslandByPlayerId(player.getUniqueId());
         if (island == null) {
             player.closeInventory();
@@ -117,14 +126,18 @@ public class PermissionGuiListener implements Listener {
         switch (action) {
             case "nav:previous" -> {
                 if (holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST && holder.getSelectedRole() != null) {
+                    final RoleType role = holder.getSelectedRole();
+                    final int newPage = holder.getPage() - 1;
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                            permissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() - 1));
+                            permissionGui.openPermissionList(player, island, role, newPage));
                 }
             }
             case "nav:next" -> {
                 if (holder.getMode() == PermissionGuiHolder.GuiMode.PERMISSION_LIST && holder.getSelectedRole() != null) {
+                    final RoleType role = holder.getSelectedRole();
+                    final int newPage = holder.getPage() + 1;
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
-                            permissionGui.openPermissionList(player, island, holder.getSelectedRole(), holder.getPage() + 1));
+                            permissionGui.openPermissionList(player, island, role, newPage));
                 }
             }
             case "nav:back" -> {
@@ -132,6 +145,9 @@ public class PermissionGuiListener implements Listener {
                     Bukkit.getRegionScheduler().run(plugin, player.getLocation(), t ->
                             permissionGui.openRoleSelect(player, island));
                 }
+            }
+            case "nav:close" -> {
+                player.closeInventory();
             }
         }
     }

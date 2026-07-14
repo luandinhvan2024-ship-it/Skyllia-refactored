@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,8 @@ public class PermissionGuiConfig {
     private int roleSelectRows;
     private String roleSelectTitle;
     private final Map<String, RoleItemConfig> roleItems = new HashMap<>();
+    private final ItemConfig roleSelectBackground = new ItemConfig();
+    private final NavConfig roleSelectClose = new NavConfig();
 
     private int permissionListRows;
     private String permissionListTitle;
@@ -33,10 +34,16 @@ public class PermissionGuiConfig {
     private final NavConfig navPrevious = new NavConfig();
     private final NavConfig navNext = new NavConfig();
     private final NavConfig navBack = new NavConfig();
+    private final NavConfig navClose = new NavConfig();
     private final NavConfig roleIndicator = new NavConfig();
+    private final ItemConfig permissionListBackground = new ItemConfig();
 
     public PermissionGuiConfig(Skyllia plugin) {
         this.plugin = plugin;
+        roleSelectBackground.material = Material.GRAY_STAINED_GLASS_PANE;
+        roleSelectBackground.displayName = " ";
+        permissionListBackground.material = Material.GRAY_STAINED_GLASS_PANE;
+        permissionListBackground.displayName = " ";
     }
 
     public void load() {
@@ -64,6 +71,12 @@ public class PermissionGuiConfig {
         roleSelectRows = rs.getInt("rows", 3);
         roleSelectTitle = rs.getString("title", "<white>Select Role");
 
+        ConfigurationSection bg = rs.getConfigurationSection("background");
+        if (bg != null) loadItemConfig(roleSelectBackground, bg);
+
+        ConfigurationSection close = rs.getConfigurationSection("close");
+        if (close != null) loadNavConfig(roleSelectClose, close);
+
         ConfigurationSection roles = rs.getConfigurationSection("roles");
         if (roles != null) {
             for (String key : roles.getKeys(false)) {
@@ -88,6 +101,9 @@ public class PermissionGuiConfig {
         permissionListTitle = pl.getString("title", "<white>Permissions - %role%");
         permissionListPageSize = pl.getInt("page-size", 36);
 
+        ConfigurationSection bg = pl.getConfigurationSection("background");
+        if (bg != null) loadItemConfig(permissionListBackground, bg);
+
         ConfigurationSection pi = pl.getConfigurationSection("permission-item");
         if (pi != null) {
             ConfigurationSection en = pi.getConfigurationSection("enabled");
@@ -104,6 +120,8 @@ public class PermissionGuiConfig {
             if (next != null) loadNavConfig(navNext, next);
             ConfigurationSection back = nav.getConfigurationSection("back");
             if (back != null) loadNavConfig(navBack, back);
+            ConfigurationSection close = nav.getConfigurationSection("close");
+            if (close != null) loadNavConfig(navClose, close);
         }
 
         ConfigurationSection ri = pl.getConfigurationSection("role-indicator");
@@ -134,6 +152,8 @@ public class PermissionGuiConfig {
     public int getRoleSelectRows() { return roleSelectRows; }
     public String getRoleSelectTitle() { return roleSelectTitle; }
     public Map<String, RoleItemConfig> getRoleItems() { return roleItems; }
+    public ItemConfig getRoleSelectBackground() { return roleSelectBackground; }
+    public NavConfig getRoleSelectClose() { return roleSelectClose; }
 
     public int getPermissionListRows() { return permissionListRows; }
     public String getPermissionListTitle() { return permissionListTitle; }
@@ -143,7 +163,9 @@ public class PermissionGuiConfig {
     public NavConfig getNavPrevious() { return navPrevious; }
     public NavConfig getNavNext() { return navNext; }
     public NavConfig getNavBack() { return navBack; }
+    public NavConfig getNavClose() { return navClose; }
     public NavConfig getRoleIndicator() { return roleIndicator; }
+    public ItemConfig getPermissionListBackground() { return permissionListBackground; }
 
     public static class ItemConfig {
         public Material material = Material.STONE;

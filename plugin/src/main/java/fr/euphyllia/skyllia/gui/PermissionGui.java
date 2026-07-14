@@ -13,7 +13,6 @@ import fr.euphyllia.skyllia.api.skyblock.model.RoleType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -53,6 +52,11 @@ public class PermissionGui {
         Inventory inv = Bukkit.createInventory(holder, size, MM.deserialize(
                 replacePlaceholders(config.getRoleSelectTitle(), Map.of())));
 
+        ItemStack bgItem = createBackgroundItem(config.getRoleSelectBackground());
+        for (int i = 0; i < size; i++) {
+            inv.setItem(i, bgItem);
+        }
+
         for (Map.Entry<String, PermissionGuiConfig.RoleItemConfig> entry : config.getRoleItems().entrySet()) {
             String roleName = entry.getKey();
             PermissionGuiConfig.RoleItemConfig rc = entry.getValue();
@@ -62,6 +66,11 @@ public class PermissionGui {
                 inv.setItem(rc.slot, createRoleItem(role, rc));
             } catch (IllegalArgumentException ignored) {
             }
+        }
+
+        PermissionGuiConfig.NavConfig closeConfig = config.getRoleSelectClose();
+        if (closeConfig.slot >= 0 && closeConfig.slot < size) {
+            inv.setItem(closeConfig.slot, createNavButton(closeConfig, "nav:close"));
         }
 
         holder.setInventory(inv);
@@ -98,15 +107,21 @@ public class PermissionGui {
         compiled.ensureUpToDate(registry);
 
         int slot = 0;
+        int permAreaEnd = Math.min(pageSize, size);
         for (PermissionNode node : pagePerms) {
             if (node == null) continue;
             PermissionId pid = registry.getIfPresent(node.node());
             if (pid == null) continue;
             boolean value = compiled.has(registry, role, pid);
-            if (slot < size) {
+            if (slot < permAreaEnd) {
                 inv.setItem(slot, createPermissionItem(node, value));
                 slot++;
             }
+        }
+
+        ItemStack bgItem = createBackgroundItem(config.getPermissionListBackground());
+        for (int i = permAreaEnd; i < size; i++) {
+            inv.setItem(i, bgItem);
         }
 
         if (page > 0) {
@@ -117,29 +132,59 @@ public class PermissionGui {
         }
         inv.setItem(config.getNavBack().slot, createNavButton(config.getNavBack(), "nav:back"));
 
+        PermissionGuiConfig.NavConfig closeConfig = config.getNavClose();
+        if (closeConfig.slot >= 0 && closeConfig.slot < size) {
+            inv.setItem(closeConfig.slot, createNavButton(closeConfig, "nav:close"));
+        }
+
         PermissionGuiConfig.NavConfig ri = config.getRoleIndicator();
-        PermissionGuiConfig.RoleItemConfig rc = config.getRoleItems().get(role.name());
-        if (rc != null) {
-            inv.setItem(ri.slot, createRoleItem(role, rc));
-        } else {
-            ItemStack item = new ItemStack(ri.material);
-            ItemMeta meta = item.getItemMeta();
-            if (meta != null) {
-                meta.displayName(MM.deserialize(replacePlaceholders(ri.displayName, Map.of("%role%", role.name()))));
-                List<Component> lore = new ArrayList<>();
-                for (String line : ri.lore) {
-                    lore.add(MM.deserialize(replacePlaceholders(line, Map.of("%role%", role.name()))));
-                }
-                meta.lore(lore);
-                applyCustomModelData(meta, ri.customModelData);
-                meta.addItemFlags(ItemFlag.values());
-                item.setItemMeta(meta);
+        if (ri.slot >= 0 && ri.slot < size) {
+            PermissionGuiConfig.RoleItemConfig rc = config.getRoleItems().get(role.name());
+            if (rc != null) {
+                inv.setItem(ri.slot, createRoleItem(role, rc));
+            } else {
+                inv.setItem(ri.slot, createSimpleItem(ri, Map.of("%role%", role.name())));
             }
-            inv.setItem(ri.slot, item);
         }
 
         holder.setInventory(inv);
         player.openInventory(inv);
+    }
+
+    private ItemStack createBackgroundItem(PermissionGuiConfig.ItemConfig ic) {
+        ItemStack item = new ItemStack(ic.material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(replacePlaceholders(ic.displayName, Map.of())));
+            if (!ic.lore.isEmpty()) {
+                List<Component> lore = new ArrayList<>();
+                for (String line : ic.lore) {
+                    lore.add(MM.deserialize(replacePlaceholders(line, Map.of())));
+                }
+                meta.lore(lore);
+            }
+            applyCustomModelData(meta, ic.customModelData);
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }
+        return item;
+    }
+
+    private ItemStack createSimpleItem(PermissionGuiConfig.ItemConfig ic, Map<String, String> placeholders) {
+        ItemStack item = new ItemStack(ic.material);
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.displayName(MM.deserialize(replacePlaceholders(ic.displayName, placeholders)));
+            List<Component> lore = new ArrayList<>();
+            for (String line : ic.lore) {
+                lore.add(MM.deserialize(replacePlaceholders(line, placeholders)));
+            }
+            meta.lore(lore);
+            applyCustomModelData(meta, ic.customModelData);
+            meta.addItemFlags(ItemFlag.values());
+            item.setItemMeta(meta);
+        }
+        return item;
     }
 
     private ItemStack createRoleItem(RoleType role, PermissionGuiConfig.RoleItemConfig rc) {
@@ -171,17 +216,16 @@ public class PermissionGui {
             String permKey = node.node().getNamespace() + ":" + node.node().getKey();
             String desc = node.description() != null ? node.description() : "";
 
-            meta.displayName(MM.deserialize(replacePlaceholders(ic.displayName, Map.of(
+            Map<String, String> ph = Map.of(
                     "%permission%", permKey,
                     "%description%", desc
-            ))));
+            );
+
+            meta.displayName(MM.deserialize(replacePlaceholders(ic.displayName, ph)));
 
             List<Component> lore = new ArrayList<>();
             for (String line : ic.lore) {
-                lore.add(MM.deserialize(replacePlaceholders(line, Map.of(
-                        "%permission%", permKey,
-                        "%description%", desc
-                ))));
+                lore.add(MM.deserialize(replacePlaceholders(line, ph)));
             }
             meta.lore(lore);
             applyCustomModelData(meta, ic.customModelData);
